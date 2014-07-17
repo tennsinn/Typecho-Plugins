@@ -1,0 +1,202 @@
+/* Global */
+.clear
+{
+	clear: both;
+}
+
+
+/* Words nav */
+.words-navigator
+{
+	list-style: none;
+	text-align: right;
+}
+
+.words-navigator li
+{
+	display: inline-block;
+	margin: 0 4px;
+}
+
+.words-navigator a
+{
+	display: inline-block;
+	padding: 0 10px;
+	height: 30px;
+	line-height: 30px;
+}
+
+.words-navigator a:hover
+{
+	background: #EEE;
+	text-decoration: none;
+}
+
+.words-navigator .current a
+{
+	color: #444;
+	background: #EEE;
+}
+
+
+/* words-page */
+.words-page .words-list
+{
+	margin-top: 10px;
+}
+
+.words-page .words-list .words-expression
+{
+	float: left;
+}
+
+.words-page .words-list .words-contents
+{
+	margin-left: 60px;
+	border: 1px solid #EEE;
+	border-radius: 5px;
+}
+
+.words-page .words-list .words-words
+{
+	position: relative;
+	padding: 10px 20px 28px 20px;
+}
+
+.words-page .words-list .words-words .words-meta
+{
+	position: absolute;
+	right: 20px;
+	bottom: 10px;
+}
+
+.words-page .words-list .words-words .words-button
+{
+	position: absolute;
+	left: 20px;
+	bottom:10px;
+	font-size: smaller;
+	cursor: pointer;
+	color: #00F;
+}
+
+.words-page .words-list .words-words .words-button:hover
+{
+	color: #000;
+}
+
+.words-page .words-list .words-comments
+{
+	margin: 0 20px;
+	padding: 5px 0;
+	border-top: 1px solid #EEE;
+	position: relative;
+}
+
+.words-page .words-list .words-comments .words-avatar
+{
+	float: left;
+	width: 25px;
+	border-radius: 5px;
+}
+
+.words-page .words-list .words-comments .words-content
+{
+	margin: 0 30px;
+}
+
+.words-page .words-list .words-comments .words-meta
+{
+	font-size: smaller;
+	color: grey;
+}
+
+.words-page .words-list .words-comments .words-button
+{
+	display: none;
+	cursor: pointer;
+	color: #00F;
+	position: absolute;
+	right: 0;
+	top: 5px;
+}
+
+.words-page .words-list .words-comments:hover .words-button
+{
+	display: block;
+}
+
+.words-page .words-list .words-comments:hover .words-button:hover
+{
+	color: #000;
+}
+
+.words-page #words-reply
+{
+	clear: both;
+	display: none;
+	margin: 10px 20px;
+	border-top: 1px solid #EEE;
+}
+
+.words-page #words-reply .words-comments-cancel
+{
+	cursor: pointer;
+	font-size: smaller;
+	color: #00F;
+}
+
+.words-page #words-reply .words-comments-cancel:hover
+{
+	color: #000;
+}
+
+/* words-reply-form */
+#comment-info
+{
+	float: right;
+	width: 30%;
+	margin-left: 1%;
+	height: 150px;
+}
+
+#comment-info p
+{
+	height: 30px;
+	margin-top: 10px;
+}
+
+#comment-info input
+{
+	height: 30px;
+}
+
+#comment-info p:first-child
+{
+	margin-top: 0;
+}
+
+#comment-content
+{
+	width: 69%;
+}
+
+#comment-content textarea
+{
+	height: 150px;
+}
+
+.comment-submit
+{
+	width: 100%;
+	line-height: 28px;
+	text-align: center;
+	font-weight: bold;
+	overflow: hidden;
+	color: #8c96a0;
+	border:1px solid #dce1e6;
+	box-shadow: 0 1px 2px #fff inset,0 -1px 0 #a8abae inset;
+	background: -webkit-linear-gradient(top,#f2f3f7,#e4e8ec);
+	background: -moz-linear-gradient(top,#f2f3f7,#e4e8ec);
+	background: linear-gradient(top,#f2f3f7,#e4e8ec);
+}

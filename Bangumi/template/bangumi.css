@@ -1,0 +1,93 @@
+.button_box
+{
+	text-align: right;
+}
+
+.button_box a
+{
+	padding: 8px;
+	border-radius: 2px;
+	background-color: #EEE;
+}
+
+.clear
+{
+	clear: both;
+}
+
+.row_double
+{
+	list-style: none;
+}
+
+.row_double li:nth-child(odd)
+{
+	float: left;
+	clear: both;
+	width: 45%;
+	margin-left: 2%;
+}
+
+.row_double li:nth-child(even)
+{
+	margin-left: 52%;
+	width: 45%;
+}
+
+.bangumi-content
+{
+	padding: 5px;
+	border: 1px solid #EEE;
+	border-radius: 5px;
+	margin-bottom: 5px;
+	height: 160px;
+}
+
+.bangumi-img
+{
+	float: left;
+	margin: 5px;
+}
+
+.bangumi-info
+{
+	margin: 20px 10px 20px 115px;
+}
+
+.bangumi-info p
+{
+	margin-bottom: 20px;
+	line-height: 15px;
+}
+
+.bangumi-info p:first-child
+{
+	margin-bottom: 0;
+}
+
+.bangumi-meta
+{
+	color: grey;
+}
+
+.bangumi-progress
+{
+	border: 1px solid #CCC;
+	border-radius: 2px;
+	padding: 1px;
+	margin-top: 10px;
+}
+
+.bangumi-progress-inner
+{
+	height: 15px;
+	line-height: 15px;
+	background: url('./progress.png') repeat-x scroll #FFF;
+	position: relative;
+}
+
+.bangumi-progress-inner small
+{
+	position: absolute;
+	left: 2px;
+}
