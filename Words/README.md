@@ -1,8 +1,10 @@
-# Words
+Words
+=====
 
 一个Typecho的简单碎语插件
 
-##Instructions
+Instructions
+------------
 
 直接使用模板样式输出碎语分页`Words_Plugin::render()`
 
@@ -20,16 +22,21 @@
 >* 'single'按$cid值获取一条评论内容
 >* 'all'全部评论条目
 
-##Changelog
+`Typecho_Plugin::factory('Words_Action')->finishWord`（传入参数array('created' => 创建时间, 'expression' => 表情图片名, 'content' => 碎语内容)）
+
+`Typecho_Plugin::factory('Words_Action')->finishComment`（传入参数array('wid' => 碎语id, 'created' => 创建时间, 'author' => 评论者, 'mail' => 邮箱, 'url' => 网站, 'ip' => IP, 'agent' => 平台, 'content' => 评论内容, 'parent' => 回复的评论id)）
+
+Changelog
+---------
+
+###1.1.2
+* 增加2个接口
 
 ###1.1.1
-* 修复后台评论筛选问题
-* 增加后台评论跳转碎语链接
+* 修复后台评论筛选、跳转问题
 
 ###1.1.0
-* 修复时间显示错误
-* 修复后台表格提交错误
-* 修改默认样式中回复按钮
-* 增加删除评论时同时删除回复的评论
-* 增加插件开启判断
 * 增加邮件提醒功能
+* 修改删除评论时同时删除回复的评论
+* 修改默认样式中回复按钮
+* 修复时间、后台表格等错误

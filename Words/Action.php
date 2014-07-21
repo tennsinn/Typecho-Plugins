@@ -23,18 +23,23 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->on($this->request->is('do=delComments'))->delComments();
 	}
 	
+	/**
+	 * 发表心情碎语
+	 * 
+	 * @return void
+	 */
 	public function addWords()
 	{
 		$content = $this->request->get('content');
 		if($content)
 		{
-			$this->_db->query($this->_db->insert('table.words_contents')->rows(
-				array(
-					'created' => Typecho_Date::gmtTime(),
-					'expression' => $this->request->get('expression'),
-					'content' => $content,
-				)
-			));
+			$newWord = array(
+				'created' => Typecho_Date::gmtTime(),
+				'expression' => $this->request->get('expression'),
+				'content' => $content
+			);
+			$this->_db->query($this->_db->insert('table.words_contents')->rows($newWord));
+			$this->pluginHandle()->finishWord($newWord);
 			$this->widget('Widget_Notice')->set(_t('碎语添加成功'), 'success');
 		}
 		else
@@ -44,6 +49,11 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->response->goBack();
 	}
 	
+	/**
+	 * 删除心情碎语及其评论
+	 * 
+	 * @return void
+	 */
 	public function delWords()
 	{
 		$wids = $this->request->filter('int')->wid;
@@ -62,6 +72,11 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->response->redirect(Typecho_Common::url('extending.php?panel=Words%2FPanel.php', $this->_options->adminUrl));
 	}
 
+	/**
+	 * 编辑心情碎语
+	 * 
+	 * @return void
+	 */
 	public function editWords()
 	{
 		$wid = $this->request->get('wid');
@@ -84,6 +99,11 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->response->goBack();
 	}
 
+	/**
+	 * 添加碎语评论
+	 * 
+	 * @return void
+	 */
 	public function addComments()
 	{
 		$content = $this->request->get('content');
@@ -92,20 +112,20 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$parent = $this->request->get('parent');
 		if($content && $author && $wid)
 		{
-			$this->_db->query($this->_db->insert('table.words_comments')->rows(
-				array(
-					'wid' => $wid,
-					'created' => Typecho_Date::gmtTime(),
-					'author' => $author,
-					'mail' => $this->request->get('mail'),
-					'url' => $this->request->get('url'),
-					'ip' => $this->request->getIp(),
-					'agent' => $this->request->getAgent(),
-					'content' => $content,
-					'parent' => $parent
-					)
-			));
+			$newComment = array(
+				'wid' => $wid,
+				'created' => Typecho_Date::gmtTime(),
+				'author' => $author,
+				'mail' => $this->request->get('mail'),
+				'url' => $this->request->get('url'),
+				'ip' => $this->request->getIp(),
+				'agent' => $this->request->getAgent(),
+				'content' => $content,
+				'parent' => $parent
+			);
+			$this->_db->query($this->_db->insert('table.words_comments')->rows($newComment));
 			$this->_db->query($this->_db->update('table.words_contents')->expression('commentsNum', 'commentsNum + 1')->where('wid = ?', $wid));
+			$this->pluginHandle()->finishComment($newComment);
 			if($parent && in_array('reviewer', $this->_settings->notice))
 			{
 				$rowNew = $this->_db->fetchRow($this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC));
@@ -123,6 +143,12 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->response->goBack();
 	}
 
+	/**
+	 * 递归删除相关评论
+	 * 
+	 * @param  integer $cid 评论cid值
+	 * @return integer 删除计数
+	 */
 	private function _funcDelete($cid)
 	{
 		$delCount = 0;
@@ -138,6 +164,13 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		return $delCount;
 	}
 
+	/**
+	 * 邮件发送
+	 * 
+	 * @param  array $rowNew	新插入的信息
+	 * @param  array $rowParent	相关的上一条信息
+	 * @return void
+	 */
 	private function _funcSendMail($rowNew, $rowParent)
 	{
 		require_once 'phpmailer/PHPMailerAutoload.php';
@@ -194,6 +227,11 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		}
 	}
 
+	/**
+	 * 删除评论及其回复评论
+	 * 
+	 * @return void
+	 */
 	public function delComments()
 	{
 		$delCount = 0;
@@ -207,6 +245,13 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		$this->response->redirect(Typecho_Common::url('extending.php?panel=Words%2FPanel.php&type=comments', $this->_options->adminUrl));
 	}
 
+	/**
+	 * 获取碎语
+	 * 
+	 * @param  string $type 获取模式
+	 * @param  integer $pageSize 分页条数
+	 * @return array
+	 */
 	public function getWords($type='page', $pageSize=10)
 	{
 		if($type == 'page')
@@ -244,6 +289,15 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		}
 	}
 
+	/**
+	 * 获取碎语评论
+	 * 
+	 * @param  string $type 获取模式
+	 * @param  integer $wid 碎语wid值
+	 * @param  integer $cid 评论cid值
+	 * @param  integer $pageSize 分页条数
+	 * @return array
+	 */
 	public function getComments($type='page', $wid=NULL, $cid=NULL, $pageSize=10)
 	{
 		if($type == 'page')

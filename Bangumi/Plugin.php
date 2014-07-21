@@ -83,7 +83,7 @@ class Bangumi_Plugin implements Typecho_Plugin_Interface
 		if(array_key_exists('Bangumi', $export['activated']))
 			include 'template/template.php';
 		else
-			echo '<div>插件未开启</div>';
+			echo '<div>Bangumi 插件未开启</div>';
 	}
 }
 ?>
