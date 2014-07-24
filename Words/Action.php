@@ -39,7 +39,7 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 				'content' => $content
 			);
 			$this->_db->query($this->_db->insert('table.words_contents')->rows($newWord));
-			$this->pluginHandle()->finishWord($newWord);
+			$this->pluginHandle()->finishWord($newWord, $this);
 			$this->widget('Widget_Notice')->set(_t('碎语添加成功'), 'success');
 		}
 		else
@@ -125,7 +125,7 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 			);
 			$this->_db->query($this->_db->insert('table.words_comments')->rows($newComment));
 			$this->_db->query($this->_db->update('table.words_contents')->expression('commentsNum', 'commentsNum + 1')->where('wid = ?', $wid));
-			$this->pluginHandle()->finishComment($newComment);
+			$this->pluginHandle()->finishComment($newComment, $this);
 			if($parent && in_array('reviewer', $this->_settings->notice))
 			{
 				$rowNew = $this->_db->fetchRow($this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC));
@@ -333,6 +333,64 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 			$rows = $this->_db->fetchAll($this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC));
 			return $rows;
 		}
+	}
+
+	/**
+	 * 碎语添加编辑表单
+	 * 
+	 * @return void
+	 */
+	public function wordsWrite()
+	{
+		$type = isset($this->request->type) ? $this->request->get('type') : 'words';
+		if($type == 'edit'):
+			$word = $this->getWords('single');
+	?>
+			<h3>编辑碎语 <span>#<?php echo $word['wid']; ?></span></h3>
+			<form method="post" name="edit_words" action="<?php $this->_options->index('/action/words?do=editWords') ?>">
+				<input type="hidden" name="wid" value="<?php echo $word['wid']; ?>" required>
+	<?php
+		else:
+	?>
+			<h3>新增碎语</h3>
+			<form method="post" name="add_words" action="<?php $this->_options->index('/action/words?do=addWords') ?>">
+	<?php
+		endif;
+	?>
+				<table width="100%">
+					<colgroup>
+						<col width="60px">
+						<col width="">
+						<col width="100px">
+					</colgroup>
+					<thead style="text-align:left;">
+						<th>表情</th>
+						<th>碎语</th>
+						<th></th>
+					</thead>
+					<tbody style="text-align:center;"><tr>
+						<td><select name="expression" id="dropdown_expression" class="egg_imagedropdown">
+					<?php
+						for($i=1; $i<90; $i++)
+						{
+							echo '<option';
+							if(isset($this->request->wid) && 'onion-'.$i.'.gif' == $word['expression'])
+								echo ' selected';
+							echo ' value="onion-'.$i.'.gif">';
+							echo $this->_options->pluginUrl('/Words/expression/onion-'.$i.'.gif');
+							echo '</option>';
+						}
+					?>
+						</select></td>
+						<td><textarea style="width:100%;" name="content"><?php echo isset($this->request->wid) ? $word['content'] : ''; ?></textarea></td>
+						<td><button class="primary" type="submit">添加</button></td>
+					</tr></tbody>
+				</table>
+	<?php 
+		$this->pluginHandle()->writeOption($this);
+	?>
+			</form>
+	<?php
 	}
 }
 

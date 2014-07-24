@@ -4,7 +4,7 @@
  * 
  * @package Words
  * @author 息E-敛
- * @version 1.1.1
+ * @version 1.1.2
  * @link http://tennsinn.com
  **/
  

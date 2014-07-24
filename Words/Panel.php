@@ -18,74 +18,11 @@ $type = isset($request->type) ? $request->get('type') : 'words';
 				</ul>
 			</div>
 			<?php if($type != 'comments'): ?>
-				<div class="col-mb-12" role="form">
-					<?php if($type == 'edit'): ?>
-						<?php $word = Typecho_Widget::widget('Words_Action')->getWords('single'); ?>
-						<h3>编辑碎语 <span>#<?php echo $word['wid']; ?></span></h3>
-						<form method="post" name="edit_words" action="<?php $options->index('/action/words?do=editWords') ?>">
-							<input type="hidden" name="wid" value="<?php echo $word['wid']; ?>" required>
-							<table width="100%">
-								<colgroup>
-									<col width="60px">
-									<col width="">
-									<col width="100px">
-								</colgroup>
-								<thead style="text-align:left;">
-									<th>表情</th>
-									<th>碎语</th>
-									<th></th>
-								</thead>
-								<tbody style="text-align:center;"><tr>
-									<td><select name="expression" id="dropdown_expression" class="egg_imagedropdown">
-								<?php
-									for($i=1; $i<90; $i++)
-									{
-										echo '<option';
-										if(isset($request->wid) && 'onion-'.$i.'.gif' == $word['expression'])
-											echo ' selected';
-										echo ' value="onion-'.$i.'.gif">';
-										echo $options->pluginUrl('/Words/expression/onion-'.$i.'.gif');
-										echo '</option>';
-									}
-								?>
-							</select></td>
-									<td><textarea style="width:100%;" name="content"><?php echo isset($request->wid) ? $word['content'] : ''; ?></textarea></td>
-									<td><button class="primary" type="submit">添加</button></td>
-								</tr></tbody>
-							</table>
-						</form>
-					<?php elseif($type == 'new'): ?>
-						<h3>新增碎语</h3>
-						<form method="post" name="add_words" action="<?php $options->index('/action/words?do=addWords') ?>">
-							<table width="100%">
-								<colgroup>
-									<col width="60px">
-									<col width="">
-									<col width="100px">
-								</colgroup>
-								<thead style="text-align:left;">
-									<th>表情</th>
-									<th>碎语</th>
-									<th></th>
-								</thead>
-								<tbody style="text-align:center;"><tr>
-									<td><select name="expression" id="dropdown_expression" class="egg_imagedropdown">
-								<?php
-									for($i=1; $i<90; $i++)
-									{
-										echo '<option value="onion-'.$i.'.gif">';
-										echo $options->pluginUrl('/Words/expression/onion-'.$i.'.gif');
-										echo '</option>';
-									}
-								?>
-							</select></td>
-									<td><textarea style="width:100%;" name="content"><?php echo isset($request->wid) ? $word['content'] : ''; ?></textarea></td>
-									<td><button class="primary" type="submit">添加</button></td>
-								</tr></tbody>
-							</table>
-						</form>
-					<?php endif; ?>
-				</div>
+				<?php if($type == 'edit' || $type == 'new'): ?>
+					<div class="col-mb-12" role="form">
+						<?php Typecho_Widget::widget('Words_Action')->wordsWrite(); ?>
+					</div>
+				<?php endif; ?>
 				<div class="col-mb-12" role="main">
 					<?php $wordsPage = Typecho_Widget::widget('Words_Action')->getWords(); ?>
 					<form method="post" name="manage_words" class="operate-form" action="<?php $options->index('/action/words?do=delWords') ?>">

@@ -22,15 +22,18 @@ Instructions
 >* 'single'按$cid值获取一条评论内容
 >* 'all'全部评论条目
 
-`Typecho_Plugin::factory('Words_Action')->finishWord`（传入参数array('created' => 创建时间, 'expression' => 表情图片名, 'content' => 碎语内容)）
+`Typecho_Plugin::factory('Words_Action')->finishWord`（传入参数：array('created' => 创建时间, 'expression' => 表情图片名, 'content' => 碎语内容)）
 
-`Typecho_Plugin::factory('Words_Action')->finishComment`（传入参数array('wid' => 碎语id, 'created' => 创建时间, 'author' => 评论者, 'mail' => 邮箱, 'url' => 网站, 'ip' => IP, 'agent' => 平台, 'content' => 评论内容, 'parent' => 回复的评论id)）
+`Typecho_Plugin::factory('Words_Action')->finishComment`（传入参数：array('wid' => 碎语id, 'created' => 创建时间, 'author' => 评论者, 'mail' => 邮箱, 'url' => 网站, 'ip' => IP, 'agent' => 平台, 'content' => 评论内容, 'parent' => 回复的评论id)）
+
+`Typecho_Plugin::factory('Words_Action')->writeOption`（传入参数：class Words_Action）
 
 Changelog
 ---------
 
 ###1.1.2
-* 增加2个接口
+* 修改添加表单
+* 增加3个接口
 
 ###1.1.1
 * 修复后台评论筛选、跳转问题
