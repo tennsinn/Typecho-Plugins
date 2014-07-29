@@ -4,7 +4,7 @@
  * 
  * @package TypechoSync
  * @author 息E-敛
- * @version 0.4.0
+ * @version 0.4.1
  * @link http://tennsinn.com
  **/
  
@@ -155,6 +155,8 @@
 	<?php
 	}
 
+	public static $syncFlag = true;
+
 	/**
 	 * 同步发表文章
 	 * 
@@ -164,25 +166,22 @@
 	 */
 	public static function syncPost($contents, $class)
 	{
-		if(!is_a($class, 'Widget_Contents_Post_Edit'))
+		if(!is_a($class, 'Widget_Contents_Post_Edit') || !isset($class->request->syncs) || empty($class->request->syncs) || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
+			return $contents;
+		self::$syncFlag = self::$syncFlag ? false : true;
+		if(self::$syncFlag)
 			return $contents;
 		$settings = Helper::options()->plugin('TypechoSync');
-		if(isset($settings->sync) && in_array('post', $settings->sync)
-			&& isset($class->request->syncs) && !empty($class->request->syncs)
-			&& $class->request->is('do=publish')
-			&& ($contents['status'] == 'publish' && !$contents['password'])
-		)
+		if(isset($settings->sync) && in_array('post', $settings->sync))
 		{
 			$options = Helper::options();
 			// 处理文字
 			$text = $contents['text'];
 			$text = $contents['isMarkdown'] ? MarkdownExtraExtended::defaultTransform($text) : Typecho_Common::cutParagraph($text);
 			$text = Typecho_Common::fixHtml($text);
-			// 获取第一张图片
-			if(preg_match("/\<img.*?src\=\"(.*?)\"[^>]*>/i", $text, $pic))
-				$pic = $pic[1];
-			else
-				$pic = NULL;
+			// 获取最多9张图片
+			preg_match_all("/\<img.*?src\=\"(.*?)\"[^>]*>/i", $text, $pic);
+			$pic = count($pic[1]) > 9 ? array_slice($pic[1], 0, 9) : $pic[1];
 			$text = explode('<!--more-->', $text);
 			$text = Typecho_Common::subStr(strip_tags($text[0]), 0, 80, '...');
 			// 模板文本
@@ -190,12 +189,14 @@
 			$search = array('{site}', '{title}', '{text}');
 			$replace = array($options->title, $contents['title'], $text);
 			$string = str_replace($search, $replace, $string);
+			// 添加链接
+			$string .= $contents['permalink'];
 			// 逐个同步
 			$syncs = array_unique(array_map('trim', $class->request->syncs));
 			if(in_array('sina', $syncs) && !empty($settings->sinaToken))
-				self::syncSina($string, $contents['permalink'], $pic);
+				self::syncSina($string, $pic);
 			if(in_array('tencent', $syncs) && !empty($settings->tencentToken) && !empty($settings->tencentOpenid))
-				self::syncTencent($string, $contents['permalink'], $pic);
+				self::syncTencent($string, $pic);
 		}
 		return $contents;
 	}
@@ -225,46 +226,43 @@
 	 * 同步到新浪微博
 	 * 
 	 * @param  string $string 文字内容
-	 * @param  string $permalink 网页链接
-	 * @param  string $pic 图片链接
+	 * @param  array $pic 图片链接
 	 * @return void
 	 */
-	public static function syncSina($string, $permalink=NULL, $pic=NULL)
+	public static function syncSina($string, $pic=NULL)
 	{
-		$options = Helper::options();
-		$settings = $options->plugin('TypechoSync');
+		$settings = Helper::options()->plugin('TypechoSync');
 		$status = $string;
-		// 添加链接
-		if($permalink)
-			$status .= $permalink;
 		require_once('libs/classSina.php');
 		$clientSina = new SaeTClientV2(NULL, NULL, $settings->sinaToken);
 		// 同步
 		if($pic)
-			$response = $clientSina->upload($status, $pic);
-		else
-			$response = $clientSina->update($status);
-		// 记录错误信息
-		if(isset($response['error_code']))
 		{
-			$fileLog = @fopen(dirname(__FILE__).'/errorlog.txt', 'a');
-			fwrite($fileLog, date('Y-m-d H:i', time(0)+$options->timezone).': sina: '.$response['error']."\r\n");
-			fclose($fileLog);
+			$apiUrl = 'statuses/upload';
+			$response = $clientSina->upload($status, $pic[0]);
 		}
+		else
+		{
+			$apiUrl = 'statuses/update';
+			$response = $clientSina->update($status);
+		}
+		// 记录错误信息
+		if($response)
+			self::logError($apiUrl.': post failed');
+		elseif(isset($response['error_code']))
+			self::logError($apiUrl.': '.$response['error']);
 	}
 
 	/**
 	 * 同步到腾讯微博
 	 * 
 	 * @param  string $string 文字内容
-	 * @param  string $permalink 网页链接
-	 * @param  string $pic 图片链接
+	 * @param  array $pic 图片链接
 	 * @return void
 	 */
-	public static function syncTencent($string, $permalink=NULL, $pic=NULL)
+	public static function syncTencent($string, $pic=NULL)
 	{
-		$options = Helper::options();
-		$settings = $options->plugin('TypechoSync');
+		$settings = Helper::options()->plugin('TypechoSync');
 		require_once('libs/classTencent.php');
 		$params['oauth_consumer_key'] = '801526744';
 		$params['access_token'] = $settings->tencentToken;
@@ -274,14 +272,25 @@
 		$params['scope'] = 'all';
 		$params['format'] = 'json';
 		$content = $string;
-		// 添加链接
-		if($permalink)
-			$content .= $permalink;
 		// 添加图片
 		if($pic)
 		{
-			$params['pic_url'] = $pic;
+			$apiUrl = 't/upload_pic';
+			$imgurls = array();
+			foreach ($pic as $picKey =>$picValue)
+			{
+				$params['pic_url'] = $picValue;
+				$response = Tencent::api($apiUrl, $params, 'POST');
+				$response = json_decode($response, true);
+				if(!$response)
+					self::logError('t/upload_pic: pic'.$picKey.' upload failed');
+				elseif($response['ret'])
+					self::logError('t/upload_pic: '.$response['msg']);
+				else
+					array_push($imgurls, $response['data']['imgurl']);
+			}
 			$apiUrl = 't/add_pic_url';
+			$params['pic_url'] = join(',', $imgurls);
 		}
 		else
 			$apiUrl = 't/add';
@@ -290,12 +299,24 @@
 		$response = Tencent::api($apiUrl, $params, 'POST');
 		$response = json_decode($response, true);
 		// 记录错误信息
-		if($response['ret'])
-		{
-			$fileLog = @fopen(dirname(__FILE__).'/errorlog.txt', 'a');
-			fwrite($fileLog, date('Y-m-d H:i', time(0)+$options->timezone).': tencent: '.$response['msg']."\r\n");
-			fclose($fileLog);
-		}
+		if(!$response)
+			self::logError($apiUrl.': post failed');
+		elseif($response['ret'])
+			self::logError($apiUrl.': '.$response['msg']);
+	}
+
+	/**
+	 * 错误记录
+	 * 
+	 * @param  string $message 记录信息
+	 * @return void
+	 */
+	public static function logError($message)
+	{
+		$options = Helper::options();
+		$fileLog = @fopen(dirname(__FILE__).'/errorlog.txt', 'a');
+		fwrite($fileLog, date('Y-m-d H:i', time(0)+$options->timezone).': '.$message."\r\n");
+		fclose($fileLog);
 	}
 }
 ?>
