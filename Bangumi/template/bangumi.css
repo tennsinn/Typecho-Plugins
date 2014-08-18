@@ -1,3 +1,33 @@
+.ico_subject_type
+{
+	display: block;
+	height: 15px;
+	width: 17px;
+	margin: 3px 0 0;
+	background: url('subject_type.png') no-repeat scroll 0% 0% transparent;
+	float: left;
+}
+
+.subject_type_1
+{
+	background-position: 0px 0px;
+}
+
+.subject_type_2
+{
+	background-position: 0px -19px;
+}
+
+.subject_type_3
+{
+	background-position: 0px -34px;
+}
+
+.subject_type_4
+{
+	background-position: 0px -48px;
+}
+
 .button_box
 {
 	text-align: right;

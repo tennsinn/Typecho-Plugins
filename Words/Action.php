@@ -2,10 +2,6 @@
 
 class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 {
-	private $_db;
-	private $_options;
-	private $_settings;
-
 	public function __construct($request, $response, $params = NULL)
 	{
 		parent::__construct($request, $response, $params);
@@ -16,10 +12,11 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 
 	public function action()
 	{
+		$this->on($this->request->is('do=addComments'))->addComments();
+		$this->widget("Widget_User")->pass("administrator");
 		$this->on($this->request->is('do=addWords'))->addWords();
 		$this->on($this->request->is('do=delWords'))->delWords();
 		$this->on($this->request->is('do=editWords'))->editWords();
-		$this->on($this->request->is('do=addComments'))->addComments();
 		$this->on($this->request->is('do=delComments'))->delComments();
 	}
 	
@@ -90,7 +87,7 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 					'content' => $content,
 				)
 			)->where('wid = ?', $wid));
-			$this->widget('Widget_Notice')->set(_t('碎语添加成功'), 'success');
+			$this->widget('Widget_Notice')->set(_t('碎语编辑成功'), 'success');
 		}
 		else
 		{

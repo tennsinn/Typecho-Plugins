@@ -46,9 +46,9 @@
 	{
 		Helper::removeAction('words');
 		Helper::removePanel(3, 'Words/Panel.php', _t('Words'), _t('Words'), 'administrator');
-		$db = Typecho_Db::get();
 		if (Helper::options()->plugin('Words')->drop)
 		{
+			$db = Typecho_Db::get();
 			$db->query('DROP TABLE IF EXISTS '.$db->getPrefix().'words_contents');
 			$db->query('DROP TABLE IF EXISTS '.$db->getPrefix().'words_comments');
 			return('插件已经禁用, 插件数据已经删除');
