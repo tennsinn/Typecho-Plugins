@@ -1,14 +1,22 @@
-Typecho_Plugin-Bangumi
+Bangumi
 ======================
 
-一个Typecho的Bangumi收视进度展示插件
+一个利用Bangumi信息的ACG本地整理Typecho插件
 
 **一个毫无意义的Typecho插件**
 
-根据Bangumi的用户id获取用户在看动画信息并展示，开启插件后需要在设置中添加 Bangumi的用户id 才能正常使用，可选择需要保留或使用的信息项目
+Instructions
+------------
 
-管理-Bangumi面板仅可进行显示查看和缓存模式下手动更新缓存
+记录信息可在新增中使用搜索获取到Bangumi.tv上的对应搜索项目进行添加
+
+可在新增中使用同步按钮根据设置中保存的bangumi id获取Bangumi.tv上的正在观看的最近50条记录
+
+注：此插件仅能获取Bangumi.tv上的部分信息，无法进行同步管理
 
 `Bangumi_Plugin::render();` 模板输出
 
-`$bangumis = Typecho_Widget::widget('Bangumi_Action')->getBangumi();` 仅获取数据（格式array(id => array(item => data))）
+`$bangumis = Typecho_Widget::widget('Bangumi_Action')->getCollection();` 仅获取数据（格式array(array(item => data))）
+
+Changelog
+---------

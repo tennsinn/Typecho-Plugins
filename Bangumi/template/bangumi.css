@@ -1,4 +1,4 @@
-.ico_subject_type
+.subject-type-ico
 {
 	display: block;
 	height: 15px;
@@ -8,36 +8,25 @@
 	float: left;
 }
 
-.subject_type_1
+.subject-type-1
 {
 	background-position: 0px 0px;
 }
 
-.subject_type_2
+.subject-type-2,
+.subject-type-6
 {
 	background-position: 0px -19px;
 }
 
-.subject_type_3
+.subject-type-3
 {
 	background-position: 0px -34px;
 }
 
-.subject_type_4
+.subject-type-4
 {
 	background-position: 0px -48px;
-}
-
-.button_box
-{
-	text-align: right;
-}
-
-.button_box a
-{
-	padding: 8px;
-	border-radius: 2px;
-	background-color: #EEE;
 }
 
 .clear
@@ -81,23 +70,7 @@
 
 .bangumi-info
 {
-	margin: 20px 10px 20px 115px;
-}
-
-.bangumi-info p
-{
-	margin-bottom: 20px;
-	line-height: 15px;
-}
-
-.bangumi-info p:first-child
-{
-	margin-bottom: 0;
-}
-
-.bangumi-meta
-{
-	color: grey;
+	margin: 10px 10px 10px 115px;
 }
 
 .bangumi-progress
@@ -119,5 +92,6 @@
 .bangumi-progress-inner small
 {
 	position: absolute;
+	width: 100px;
 	left: 2px;
 }

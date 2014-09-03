@@ -3,7 +3,11 @@ include 'common.php';
 include 'header.php';
 include 'menu.php';
 
-$type = isset($request->type) ? $request->get('type') : 'do';
+$do = isset($request->do) ? $request->get('do') : 'manage';
+$type = isset($request->type) ? $request->get('type') : '0';
+$collection = isset($request->collection) ? $request->get('collection') : 'all';
+$collection_status = array('all', 'do', 'collect', 'wish', 'on_hold', 'dropped');
+$collection_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold', 'dropped'), '1' => array('书籍', '在读', '读过', '想读', '搁置', '抛弃'), '2' => array('动画', '在看', '看过', '想看', '搁置', '抛弃'), '3' => array('音乐', '在听', '听过', '想听', '搁置', '抛弃'), '4' => array('游戏', '在玩', '玩过', '想玩', '搁置', '抛弃'), '6' => array('三次元', '在看', '看过', '想看', '搁置', '抛弃'));
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php $options->pluginUrl('Bangumi/template/bangumi.css'); ?>">
@@ -12,30 +16,41 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 		<?php include 'page-title.php'; ?>
 		<div class="colgroup typecho-page-main" role="main">
 			<div class="col-mb-12">
-				<ul class="typecho-option-tabs clearfix">
-					<li <?php if($type == 'do'): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php'); ?>"><?php _e('在看'); ?></a></li>
-					<li <?php if($type == 'collect'): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php&type=collect'); ?>"><?php _e('看过'); ?></a></li>
-					<li <?php if($type == 'other'): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php&type=other'); ?>"><?php _e('其它'); ?></a></li>
-					<li <?php if($type == 'search'): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php&type=search'); ?>"><?php _e('搜索'); ?></a></li>
-				</ul>
-				<div class="col-mb-12 typecho-list" role="main">
-					<?php if($type != 'search'): ?>
+				<?php if($do == 'manage'): ?>
+					<ul class="typecho-option-tabs right">
+						<?php foreach($collection_status as $key => $value): ?>
+							<li <?php if($collection == $value): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php&type='.$type.'&collection='.$value); ?>"><?php _e($collection_trans[$type][$key]); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+					<ul class="typecho-option-tabs clearfix">
+						<?php foreach($collection_trans as $key => $value): ?>
+							<li <?php if($type == $key): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php&type='.$key.'&collection='.$collection); ?>"><?php _e($value[0]); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+					<div class="col-mb-12 typecho-list" role="main">
 						<?php $result = Typecho_Widget::widget('Bangumi_Action')->getCollection(); ?>
-						<form method="get">
-							<div class="typecho-list-operate clearfix">
+						<div class="typecho-list-operate clearfix">
+							<form method="get">
 								<div class="operate">
 									<label><i class="sr-only"><?php _e('全选'); ?></i><input type="checkbox" class="typecho-table-select-all" /></label>
 									<div class="btn-group btn-drop">
 										<button class="dropdown-toggle btn-s" type="button"><?php _e('<i class="sr-only">操作</i>选中项'); ?> <i class="i-caret-down"></i></button>
 										<ul class="dropdown-menu">
-											<li><a lang="<?php _e('你确认要修改这些记录为在看吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=do'); ?>"><?php _e('修改为在看'); ?></a></li>
-											<li><a lang="<?php _e('你确认要修改这些记录为看过吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=collect'); ?>"><?php _e('修改为看过'); ?></a></li>
-											<li><a lang="<?php _e('你确认要修改这些记录为其它吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=collect'); ?>"><?php _e('修改为其它'); ?></a></li>
+											<?php for($i=1; $i<6; $i++): ?>
+												<li><a lang="<?php _e('你确认要添加这些记录到'.$collection_trans[$type][$i].'吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&type='.$type.'&collection='.$collection_trans['0'][$i]); ?>"><?php _e('添加到'.$collection_trans[$type][$i]); ?></a></li>
+											<?php endfor; ?>
 											<li><a lang="<?php _e('你确认要删除记录中的这些记录吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=delete'); ?>"><?php _e('删除记录'); ?></a></li>
 										</ul>
 									</div>
 								</div>
-							</div>
+							</form>
+							<?php if($result['status']): ?>
+								<ul class="typecho-pager">
+									<?php $result['nav']->render(_t('&laquo;'), _t('&raquo;')); ?>
+								</ul>
+							<?php endif; ?>
+						</div>
+						<form method="post" class="operate-form">
 							<div class="typecho-table-wrap">
 								<table class="typecho-list-table">
 									<colgroup>
@@ -55,28 +70,24 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 									<tbody>
 										<?php if($result['status']): ?>
 											<?php foreach($result['list'] as $bangumi): ?>
-												<tr id="bangumi-<?php echo $bangumi['subject_id']; ?>">
-													<td><input type="checkbox" name="id[]" value="<?php echo $bangumi['id']; ?>"></td>
+												<tr id="bangumi-<?php echo $bangumi['id']; ?>" data-subject="<?php echo htmlspecialchars(json_encode($bangumi)); ?>">
+													<td><input type="checkbox" name="subject_id[]" value="<?php echo $bangumi['subject_id']; ?>"></td>
 													<td><img src="<?php echo $bangumi['image']; ?>" width="100px"></td>
-													<td>
-														<div><i class="ico_subject_type subject_type_<?php echo $bangumi['type']; ?>"></i><a href="http://bangumi.tv/subject/<?php echo $bangumi['subject_id']; ?>"><?php echo $bangumi['name']; ?></a></div>
-														<div><small><?php echo $bangumi['name_cn']; ?></small></div>
-														<div class="bangumi-progress">
-															<?php
-																if($bangumi['eps'] == 0){
-																	$width = 100;
-																}
-																else{
-																	$width = $bangumi['ep_status']/$bangumi['eps']*100;
-																}
-															?>
-															<div class="bangumi-progress-inner" style="color: <?php echo ($width>10?'#FFF':'#000'); ?>; width:<?php echo $width; ?>%"><small><?php echo $bangumi['ep_status']; ?>/<?php echo $bangumi['eps']; ?></small></div>
-														</div>
+													<td class="subject-meta">
+														<p><div><i class="subject-type-ico subject-type-<?php echo $bangumi['type']; ?>"></i><a href="http://bangumi.tv/subject/<?php echo $bangumi['subject_id']; ?>"><?php echo $bangumi['name']; ?></a></div>
+														<div><small><?php echo $bangumi['name_cn']; ?></small></div></p>
+														<?php if($bangumi['type'] == 2 || $bangumi['type'] == 6): ?>
+															<p><div class="bangumi-progress">
+																<div class="bangumi-progress-inner" style="color:white; width:<?php echo $bangumi['eps'] ? $bangumi['ep_status']/$bangumi['eps']*100 : 100; ?>%"><small><?php echo $bangumi['ep_status']; ?> / <?php echo $bangumi['eps'] ? $bangumi['eps'] : '??'; ?></small></div>
+															</div></p>
+															<p></p>
+														<?php endif; ?>
 													</td>
-													<td valign="top">
-														<p><i><?php echo $bangumi['tags']; ?></i></p>
-														<p><?php echo $bangumi['comment']; ?></p>
-														<p>添加编辑按钮</p>
+													<td class="subject-review">
+														<p class="subject-interest_rate">评价：<?php echo $bangumi['interest_rate'] ? $bangumi['interest_rate'] : '<i>未评星</i>'; ?></p>
+														<p class="subject-tags">标签：<?php echo $bangumi['tags'] ? $bangumi['tags'] : '<i>无</i>'; ?></p>
+														<p class="subject-comment">吐槽：<?php echo $bangumi['comment'] ? $bangumi['comment'] : '<i>无</i>'; ?></p>
+														<p class="hidden-by-mouse"><a href="#<?php echo $bangumi['subject_id']; ?>" rel="<?php $options->index('/action/bangumi?do=editSubject&subject_id='.$bangumi['subject_id']); ?>" class="operate-edit"><?php _e('编辑'); ?></a></p>
 													</td>
 												</tr>
 											<?php endforeach; ?>
@@ -86,47 +97,42 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 									</tbody>
 								</table>
 							</div>
-							<div class="typecho-list-operate clearfix">
-								<?php if($result['status']): ?>
-									<ul class="typecho-pager">
-										<?php $result['nav']->render(_t('&laquo;'), _t('&raquo;')); ?>
-									</ul>
-								<?php endif; ?>
-							</div>
 						</form>
-					<?php else: ?>
-						<form method="get" style="margin-top: 20px;" class="clearfix">
-							<div class="search" role="search">
-								<input type="hidden" value="Bangumi/Panel.php" name="panel">
-								<input type="hidden" value="search" name="type">
-								<input type="text" class="text-s" placeholder="<?php _e('请输入关键字'); ?>" value="<?php echo htmlspecialchars($request->keywords); ?>" name="keywords">
-								<button type="submit" class="btn-s"><?php _e('搜索'); ?></button>
-							</div>
-						</form>
-						<?php
-							if($request->get('keywords'))
-								$result = Typecho_Widget::widget('Bangumi_Action')->search();
-							else
-								$result = array('status' => false, 'message' => '无搜索结果');
-						?>
-						<form method="get">
-							<div class="typecho-list-operate clearfix">
+				<?php else: ?>
+					<div class="col-mb-12 typecho-list" role="main">
+						<?php $result = Typecho_Widget::widget('Bangumi_Action')->search(); ?>
+						<div class="typecho-list-operate clearfix">
+							<form method="get">
 								<div class="operate">
 									<label><i class="sr-only"><?php _e('全选'); ?></i><input type="checkbox" class="typecho-table-select-all" /></label>
 									<div class="btn-group btn-drop">
 										<button class="dropdown-toggle btn-s" type="button"><?php _e('<i class="sr-only">操作</i>选中项'); ?> <i class="i-caret-down"></i></button>
 										<ul class="dropdown-menu">
-											<li><a lang="<?php _e('你确认要添加这些记录为在看吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=do'); ?>"><?php _e('添加为在看'); ?></a></li>
-											<li><a lang="<?php _e('你确认要添加这些记录为看过吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection=collect'); ?>"><?php _e('添加为看过'); ?></a></li>
+											<?php for($i=1; $i<6; $i++): ?>
+												<li><a lang="<?php _e('你确认要添加这些记录到'.$collection_trans[$type][$i].'吗?'); ?>" href="<?php $options->index('/action/bangumi?do=editCollection&collection='.$collection_trans['0'][$i]); ?>"><?php _e('添加到'.$collection_trans[$type][$i]); ?></a></li>
+											<?php endfor; ?>
 										</ul>
 									</div>
+									<a style="margin-left:5px;" href="<?php $options->index('/action/bangumi?do=syncBangumi'); ?>">同步</a>
 								</div>
-								<?php if($result['status']): ?>
-									<ul class="typecho-pager">
-										<?php $result['nav']->render(_t('&laquo;'), _t('&raquo;')); ?>
-									</ul>
-								<?php endif; ?>
-							</div>
+								<div class="search" role="search">
+									<a href="<?php $options->adminUrl('extending.php?panel=Bangumi%2FPanel.php'); ?>">返回</a>
+									<input type="hidden" value="Bangumi/Panel.php" name="panel">
+									<input type="hidden" value="new" name="do">
+									<input type="text" class="text-s" placeholder="<?php _e('请输入关键字'); ?>" value="<?php echo htmlspecialchars($request->keywords); ?>"<?php if ('' == $request->keywords): ?> onclick="value='';name='keywords';" <?php else: ?> name="keywords"<?php endif; ?>>
+									<select name="type">
+										<option value="0"><?php _e('全部'); ?></option>
+										<option value="1"<?php if($request->get('type') == '1'): ?> selected="true"<?php endif; ?>><?php _e('书籍') ?></option>
+										<option value="2"<?php if($request->get('type') == '2'): ?> selected="true"<?php endif; ?>><?php _e('动漫') ?></option>
+										<option value="3"<?php if($request->get('type') == '3'): ?> selected="true"<?php endif; ?>><?php _e('音乐') ?></option>
+										<option value="4"<?php if($request->get('type') == '4'): ?> selected="true"<?php endif; ?>><?php _e('游戏') ?></option>
+										<option value="6"<?php if($request->get('type') == '6'): ?> selected="true"<?php endif; ?>><?php _e('三次元') ?></option>
+									</select>
+									<button type="submit" class="btn-s"><?php _e('搜索'); ?></button>
+								</div>
+							</form>
+						</div>
+						<form method="post" class="operate-form">
 							<div class="typecho-table-wrap">
 								<table class="typecho-list-table">
 									<colgroup>
@@ -148,8 +154,8 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 									<tbody>
 										<?php if($result['status']): ?>
 											<?php foreach($result['list'] as $bangumi): ?>
-												<tr id="bangumi-<?php echo $bangumi['id']; ?>">
-													<td><input type="checkbox" name="id[]" value="<?php echo $bangumi['id']; ?>"></td>
+												<tr>
+													<td><input type="checkbox" name="subject_id[]" value="<?php echo $bangumi['id']; ?>"></td>
 													<td><img src="<?php echo $bangumi['images']['medium']; ?>" width="100px"></td>
 													<td><div><i class="ico_subject_type subject_type_<?php echo $bangumi['type']; ?>"></i><a href="<?php echo $bangumi['url']; ?>"><?php echo $bangumi['name']; ?></a></div><div><small><?php echo $bangumi['name_cn']; ?></small></div></td>
 													<td><?php echo $bangumi['summary']; ?></td>
@@ -166,6 +172,13 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 								</table>
 							</div>
 						</form>
+						<div class="typecho-list-operate clearfix">
+							<?php if($result['status']): ?>
+								<ul class="typecho-pager">
+									<?php $result['nav']->render(_t('&laquo;'), _t('&raquo;')); ?>
+								</ul>
+							<?php endif; ?>
+						</div>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -177,5 +190,108 @@ $type = isset($request->type) ? $request->get('type') : 'do';
 include 'copyright.php';
 include 'common-js.php';
 include 'table-js.php';
+?>
+<script type="text/javascript">
+$(document).ready(function () {
+	$('.operate-edit').click(function () {
+		var tr = $(this).parents('tr');
+		var t = $(this);
+		var id = tr.attr('id');
+		var subject = tr.data('subject');
+		tr.hide();
+
+		if(subject.type==2 || subject.type==6)
+		{
+			var edit = $('<tr class="subject-edit">'
+						+ '<td> </td>'
+						+ '<td><img width="100px" src="'+subject.image+'"></td>'
+						+ '<td><div><i class="subject-type-ico subject-type-'+subject.type+'"></i><a href="http://bangumi.tv/subject/'+subject.subject_id+'">'+subject.name+'</a></div><div><small>'+subject.name_cn+'</small></div><form method="post" action="'+t.attr('rel')+'" class="subject-edit-info">'
+						+ '<p><label for="' + id + '-ep_status"><?php _e('收视进度'); ?></label><input class="text-s w-100" id="'
+						+ id + '-ep_status" name="ep_status" type="text" required></p>'
+						+ '<p><label for="' + id + '-eps"><?php _e('总集数'); ?></label>'
+						+ '<input class="text-s w-100" type="text" name="eps" id="' + id + '-eps" required></p></form></td>'
+						+ '<td id="review-'+subject.subject_id+'"><form method="post" action="'+t.attr('rel')+'" class="subject-edit-content">'
+						+ '<p><label for="' + id + '-interest_rate"><?php _e('评价'); ?></label>'
+						+ '<input class="text-s w-100" type="text" name="interest_rate" id="' + id + '-interest_rate" required></p>'
+						+ '<p><label for="' + id + '-tags"><?php _e('标签'); ?></label>'
+						+ '<input class="text-s w-100" type="text" name="tags" id="' + id + '-tags"></p>'
+						+ '<p><label for="' + id + '-comment"><?php _e('内容'); ?></label>'
+						+ '<textarea name="comment" id="' + id + '-comment" rows="6" class="w-100 mono"></textarea></p>'
+						+ '<p><button type="submit" class="btn-s primary"><?php _e('提交'); ?></button> '
+						+ '<button type="button" class="btn-s cancel"><?php _e('取消'); ?></button></p></form></td></tr>')
+						.data('id', id).data('subject', subject).insertAfter(tr);
+
+			$('input[name=ep_status]', edit).val(subject.ep_status);
+			$('input[name=eps]', edit).val(subject.eps);
+		}
+		else
+		{
+			var edit = $('<tr class="subject-edit">'
+						+ '<td> </td>'
+						+ '<td><img width="100px" src="'+subject.image+'"></td>'
+						+ '<td><div><i class="subject-type-ico subject-type-'+subject.type+'"></i><a href="http://bangumi.tv/subject/'+subject.subject_id+'">'+subject.name+'</a></div><div><small>'+subject.name_cn+'</small></div></td>'
+						+ '<td id="review-'+subject.subject_id+'"><form method="post" action="'+t.attr('rel')+'" class="subject-edit-content">'
+						+ '<p><label for="' + id + '-interest_rate"><?php _e('评价'); ?></label>'
+						+ '<input class="text-s w-100" type="text" name="interest_rate" id="' + id + '-interest_rate" required></p>'
+						+ '<p><label for="' + id + '-tags"><?php _e('标签'); ?></label>'
+						+ '<input class="text-s w-100" type="text" name="tags" id="' + id + '-tags"></p>'
+						+ '<p><label for="' + id + '-comment"><?php _e('内容'); ?></label>'
+						+ '<textarea name="comment" id="' + id + '-comment" rows="6" class="w-100 mono"></textarea></p>'
+						+ '<p><button type="submit" class="btn-s primary"><?php _e('提交'); ?></button> '
+						+ '<button type="button" class="btn-s cancel"><?php _e('取消'); ?></button></p></form></td></tr>')
+						.data('id', id).data('subject', subject).insertAfter(tr);
+		}
+		$('input[name=interest_rate]', edit).val(subject.interest_rate);
+		$('input[name=tags]', edit).val(subject.tags);
+		$('textarea[name=comment]', edit).val(subject.comment).focus();
+
+		$('.cancel', edit).click(function () {
+			var tr = $(this).parents('tr');
+
+			$('#' + tr.data('id')).show();
+			tr.remove();
+		});
+
+		$('form', edit).submit(function () {
+			var t = $(this), tr = t.parents('tr'),
+				oldTr = $('#' + tr.data('id')),
+				subject = oldTr.data('subject');
+
+			$('form', tr).each(function () {
+				var items  = $(this).serializeArray();
+
+				for (var i = 0; i < items.length; i ++) {
+					var item = items[i];
+					subject[item.name] = item.value;
+				}
+			});
+
+			oldTr.data('subject', subject);
+
+			$.post(t.attr('action'), subject, function (data) {
+				if(data.status)
+				{
+					$('.bangumi-progress', oldTr).html('<div class="bangumi-progress-inner" style="color:white; width:'+(subject.eps != '0' ? subject.ep_status/subject.eps*100 : 100)+'%"><small>'+subject.ep_status+' / '+(subject.eps != '0' ? subject.eps : '??')+'</small></div>');
+					$('.subject-interest_rate', oldTr).html('评价：'+(subject.interest_rate ? subject.interest_rate : '<i>未评星</i>'));
+					$('.subject-tags', oldTr).html('标签：'+(subject.tags ? subject.tags : '<i>无</i>'));
+					$('.subject-comment', oldTr).html('吐槽：'+(subject.comment ? subject.comment : '<i>无</i>'));
+					$('.subject-meta', oldTr).effect('highlight');
+					$('.subject-review', oldTr).effect('highlight');
+				}
+				else
+					alert(data.message);
+			}, 'json');
+			
+			oldTr.show();
+			tr.remove();
+
+			return false;
+		});
+
+		return false;
+	});
+});
+</script>
+<?php
 include 'footer.php';
 ?>

@@ -4,7 +4,7 @@
  * 
  * @package Bangumi
  * @author 息E-敛
- * @version 1.0.0
+ * @version 0.9.0
  * @link http://tennsinn.com
  */
 class Bangumi_Plugin implements Typecho_Plugin_Interface
@@ -12,7 +12,7 @@ class Bangumi_Plugin implements Typecho_Plugin_Interface
 	public static function activate()
 	{
 		Helper::addAction('bangumi', 'Bangumi_Action');
-		Helper::addPanel(3, "Bangumi/Panel.php", _t("Bangumi"), _t("Bangumi"), 'administrator');
+		Helper::addPanel(3, "Bangumi/Panel.php", _t("Bangumi"), _t("Bangumi"), 'administrator', false, 'extending.php?panel=Bangumi%2FPanel.php&do=new');
 		$db = Typecho_Db::get();
 		$charset = Helper::options()->charset == 'UTF-8' ? 'utf8' : 'gbk';
 		$query = 'CREATE TABLE IF NOT EXISTS '. $db->getPrefix() . 'bangumi' ." (
