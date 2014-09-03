@@ -1,10 +1,10 @@
 <?php
 /**
- * 依托Bangumi api的ACG进度管理插件
+ * 一个利用Bangumi信息的ACG本地整理插件
  * 
  * @package Bangumi
  * @author 息E-敛
- * @version 0.9.0
+ * @version 0.9.1
  * @link http://tennsinn.com
  */
 class Bangumi_Plugin implements Typecho_Plugin_Interface

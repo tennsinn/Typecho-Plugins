@@ -74,20 +74,22 @@ $collection_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_ho
 													<td><input type="checkbox" name="subject_id[]" value="<?php echo $bangumi['subject_id']; ?>"></td>
 													<td><img src="<?php echo $bangumi['image']; ?>" width="100px"></td>
 													<td class="subject-meta">
-														<p><div><i class="subject-type-ico subject-type-<?php echo $bangumi['type']; ?>"></i><a href="http://bangumi.tv/subject/<?php echo $bangumi['subject_id']; ?>"><?php echo $bangumi['name']; ?></a></div>
-														<div><small><?php echo $bangumi['name_cn']; ?></small></div></p>
+														<div><i class="subject-type-ico subject-type-<?php echo $bangumi['type']; ?>"></i><a href="http://bangumi.tv/subject/<?php echo $bangumi['subject_id']; ?>"><?php echo $bangumi['name']; ?></a></div>
+														<div><small><?php echo $bangumi['name_cn']; ?></small></div>
 														<?php if($bangumi['type'] == 2 || $bangumi['type'] == 6): ?>
-															<p><div class="bangumi-progress">
+															<div class="bangumi-progress">
 																<div class="bangumi-progress-inner" style="color:white; width:<?php echo $bangumi['eps'] ? $bangumi['ep_status']/$bangumi['eps']*100 : 100; ?>%"><small><?php echo $bangumi['ep_status']; ?> / <?php echo $bangumi['eps'] ? $bangumi['eps'] : '??'; ?></small></div>
-															</div></p>
-															<p></p>
+															</div>
+															<?php if($bangumi['collection'] != 'collection' && ($bangumi['type'] == 2 || $bangumi['type'] == 6)): ?>
+																<div class="hidden-by-mouse"><small><a href="#<?php echo $bangumi['subject_id']; ?>" rel="<?php $options->index('/action/bangumi?do=epplus'); ?>" class="subject-ep-plus"><?php _e('ep.'.($bangumi['ep_status']+1).'已看过'); ?></a></small></div>
+															<?php endif; ?>
 														<?php endif; ?>
 													</td>
 													<td class="subject-review">
 														<p class="subject-interest_rate">评价：<?php echo $bangumi['interest_rate'] ? $bangumi['interest_rate'] : '<i>未评星</i>'; ?></p>
 														<p class="subject-tags">标签：<?php echo $bangumi['tags'] ? $bangumi['tags'] : '<i>无</i>'; ?></p>
 														<p class="subject-comment">吐槽：<?php echo $bangumi['comment'] ? $bangumi['comment'] : '<i>无</i>'; ?></p>
-														<p class="hidden-by-mouse"><a href="#<?php echo $bangumi['subject_id']; ?>" rel="<?php $options->index('/action/bangumi?do=editSubject&subject_id='.$bangumi['subject_id']); ?>" class="operate-edit"><?php _e('编辑'); ?></a></p>
+														<p class="hidden-by-mouse"><a href="#<?php echo $bangumi['subject_id']; ?>" rel="<?php $options->index('/action/bangumi?do=editSubject'); ?>" class="subject-edit"><?php _e('编辑'); ?></a></p>
 													</td>
 												</tr>
 											<?php endforeach; ?>
@@ -193,23 +195,45 @@ include 'table-js.php';
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
-	$('.operate-edit').click(function () {
+	$('.subject-ep-plus').click(function(){
+		var tr = $(this).parents('tr');
+		var t = $(this);
+		var id = tr.attr('id');
+		var subject = tr.data('subject');
+		$.post(t.attr('rel'), {"subject_id": subject.subject_id}, function (data) {
+			if(data.status)
+			{
+				subject.ep_status = data.ep_status;
+				tr.data('subject', subject);
+				$('.bangumi-progress', tr).html('<div class="bangumi-progress-inner" style="color:white; width:'+(subject.eps != '0' ? subject.ep_status/subject.eps*100 : 100)+'%"><small>'+subject.ep_status+' / '+(subject.eps != '0' ? subject.eps : '??')+'</small></div>');
+				if(data.collection=='collect')
+					t.parents('div.hidden-by-mouse').remove();
+				else
+					t.html('ep.'+(data.ep_status+1)+'已看过');
+			}
+			else
+				alert(data.message);
+				
+		});
+	});
+
+	$('.subject-edit').click(function () {
 		var tr = $(this).parents('tr');
 		var t = $(this);
 		var id = tr.attr('id');
 		var subject = tr.data('subject');
 		tr.hide();
 
-		if(subject.type==2 || subject.type==6)
-		{
-			var edit = $('<tr class="subject-edit">'
+		var edit = $('<tr class="subject-edit">'
 						+ '<td> </td>'
 						+ '<td><img width="100px" src="'+subject.image+'"></td>'
-						+ '<td><div><i class="subject-type-ico subject-type-'+subject.type+'"></i><a href="http://bangumi.tv/subject/'+subject.subject_id+'">'+subject.name+'</a></div><div><small>'+subject.name_cn+'</small></div><form method="post" action="'+t.attr('rel')+'" class="subject-edit-info">'
+						+ '<td><div><i class="subject-type-ico subject-type-'+subject.type+'"></i><a href="http://bangumi.tv/subject/'+subject.subject_id+'">'+subject.name+'</a></div><div><small>'+subject.name_cn+'</small></div>'
+						+ ((subject.type==2 || subject.type==6) ? ('<?php echo $collection; ?>' == 'collect' ? '<div class="bangumi-progress"><div class="bangumi-progress-inner" style="color:white; width:'+(subject.eps != '0' ? subject.ep_status/subject.eps*100 : 100)+'%"><small>'+subject.ep_status+' / '+(subject.eps != '0' ? subject.eps : '??')+'</small></div></div>' : '<form method="post" action="'+t.attr('rel')+'" class="subject-edit-info">'
 						+ '<p><label for="' + id + '-ep_status"><?php _e('收视进度'); ?></label><input class="text-s w-100" id="'
 						+ id + '-ep_status" name="ep_status" type="text" required></p>'
 						+ '<p><label for="' + id + '-eps"><?php _e('总集数'); ?></label>'
-						+ '<input class="text-s w-100" type="text" name="eps" id="' + id + '-eps" required></p></form></td>'
+						+ '<input class="text-s w-100" type="text" name="eps" id="' + id + '-eps" required></p></form>') : '')
+						+ '</td>'
 						+ '<td id="review-'+subject.subject_id+'"><form method="post" action="'+t.attr('rel')+'" class="subject-edit-content">'
 						+ '<p><label for="' + id + '-interest_rate"><?php _e('评价'); ?></label>'
 						+ '<input class="text-s w-100" type="text" name="interest_rate" id="' + id + '-interest_rate" required></p>'
@@ -221,26 +245,8 @@ $(document).ready(function () {
 						+ '<button type="button" class="btn-s cancel"><?php _e('取消'); ?></button></p></form></td></tr>')
 						.data('id', id).data('subject', subject).insertAfter(tr);
 
-			$('input[name=ep_status]', edit).val(subject.ep_status);
-			$('input[name=eps]', edit).val(subject.eps);
-		}
-		else
-		{
-			var edit = $('<tr class="subject-edit">'
-						+ '<td> </td>'
-						+ '<td><img width="100px" src="'+subject.image+'"></td>'
-						+ '<td><div><i class="subject-type-ico subject-type-'+subject.type+'"></i><a href="http://bangumi.tv/subject/'+subject.subject_id+'">'+subject.name+'</a></div><div><small>'+subject.name_cn+'</small></div></td>'
-						+ '<td id="review-'+subject.subject_id+'"><form method="post" action="'+t.attr('rel')+'" class="subject-edit-content">'
-						+ '<p><label for="' + id + '-interest_rate"><?php _e('评价'); ?></label>'
-						+ '<input class="text-s w-100" type="text" name="interest_rate" id="' + id + '-interest_rate" required></p>'
-						+ '<p><label for="' + id + '-tags"><?php _e('标签'); ?></label>'
-						+ '<input class="text-s w-100" type="text" name="tags" id="' + id + '-tags"></p>'
-						+ '<p><label for="' + id + '-comment"><?php _e('内容'); ?></label>'
-						+ '<textarea name="comment" id="' + id + '-comment" rows="6" class="w-100 mono"></textarea></p>'
-						+ '<p><button type="submit" class="btn-s primary"><?php _e('提交'); ?></button> '
-						+ '<button type="button" class="btn-s cancel"><?php _e('取消'); ?></button></p></form></td></tr>')
-						.data('id', id).data('subject', subject).insertAfter(tr);
-		}
+		$('input[name=ep_status]', edit).val(subject.ep_status);
+		$('input[name=eps]', edit).val(subject.eps);
 		$('input[name=interest_rate]', edit).val(subject.interest_rate);
 		$('input[name=tags]', edit).val(subject.tags);
 		$('textarea[name=comment]', edit).val(subject.comment).focus();
@@ -272,9 +278,10 @@ $(document).ready(function () {
 				if(data.status)
 				{
 					$('.bangumi-progress', oldTr).html('<div class="bangumi-progress-inner" style="color:white; width:'+(subject.eps != '0' ? subject.ep_status/subject.eps*100 : 100)+'%"><small>'+subject.ep_status+' / '+(subject.eps != '0' ? subject.eps : '??')+'</small></div>');
-					$('.subject-interest_rate', oldTr).html('评价：'+(subject.interest_rate ? subject.interest_rate : '<i>未评星</i>'));
+					$('.subject-interest_rate', oldTr).html('评价：'+(subject.interest_rate != '0' ? subject.interest_rate : '<i>未评星</i>'));
 					$('.subject-tags', oldTr).html('标签：'+(subject.tags ? subject.tags : '<i>无</i>'));
 					$('.subject-comment', oldTr).html('吐槽：'+(subject.comment ? subject.comment : '<i>无</i>'));
+					$('.subject-ep-plus', oldTr).html('ep.'+(parseInt(subject.ep_status)+1)+'已看过');
 					$('.subject-meta', oldTr).effect('highlight');
 					$('.subject-review', oldTr).effect('highlight');
 				}

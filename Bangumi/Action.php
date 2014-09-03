@@ -13,6 +13,7 @@ class Bangumi_Action extends Typecho_Widget implements Widget_Interface_Do
 	public function action()
 	{
 		$this->widget("Widget_User")->pass("administrator");
+		$this->on($this->request->is('do=epplus'))->epplus();
 		$this->on($this->request->is('do=editSubject'))->editSubject();
 		$this->on($this->request->is('do=editCollection'))->editCollection();
 		$this->on($this->request->is('do=syncBangumi'))->syncBangumi();
@@ -150,24 +151,50 @@ class Bangumi_Action extends Typecho_Widget implements Widget_Interface_Do
 				$this->response->throwJson(array('success' => false, 'message' => _t('评价请使用0-10的数字表示')));
 			else
 			{
-				$eps = $this->request->get('eps');
-				$ep_status = $this->request->get('ep_status');
 				$subject = array(
 					'interest_rate' => $this->request->interest_rate,
 					'tags' => $this->request->tags,
 					'comment' => $this->request->comment,
-					'eps' => $eps
+					'eps' => $this->request->eps
 				);
-				if($eps > 0 && $eps >= $ep_status)
-					$subject['ep_status'] = $ep_status;
-				if($eps > 0 && $eps == $ep_status)
+				if($this->request->eps > 0 && $this->request->eps >= $this->request->ep_status)
+					$subject['ep_status'] = $this->request->ep_status;
+				if($this->request->eps > 0 && $this->request->eps == $this->request->ep_status)
 					$subject['collection'] = 'collect';
-				$this->_db->query($this->_db->update('table.bangumi')->where('subject_id = ?', $this->request->get('subject_id'))->rows($subject));
+				$this->_db->query($this->_db->update('table.bangumi')->where('subject_id = ?', $this->request->subject_id)->rows($subject));
 				$this->response->throwJson(array('status' => true, 'message' => _t('修改成功')));
 			}
 		}
 		else
 			$this->response->throwJson(array('success' => false, 'message' => _t('缺少必要信息')));
+	}
+
+	/**
+	 * 收视进度增加
+	 * @return void
+	 */
+	private function epplus()
+	{
+		if(!$this->request->get('subject_id'))
+			$this->response->throwJson(array('status' => false, 'message' => _t('缺少必要信息')));
+		$row = $this->_db->fetchRow($this->_db->select()->from('table.bangumi')->where('subject_id = ?', $this->request->subject_id));
+		if($row['type'] != 2 && $row['type'] != 6)
+			$this->response->throwJson(array('status' => false, 'message' => _t('所选记录无进度数据')));
+		if(($row['ep_status']+1) < $row['eps'] || $row['eps'] == 0)
+		{
+			$this->_db->query($this->_db->update('table.bangumi')->expression('ep_status', 'ep_status + 1')->where('subject_id = ?', $this->request->subject_id));
+			$this->response->throwJson(array('status' => true, 'collection' => 'do', 'ep_status' => ($row['ep_status']+1)));
+		}
+		else
+		{
+			$this->_db->query($this->_db->update('table.bangumi')->where('subject_id = ?', $this->request->subject_id)->rows(
+				array(
+					'ep_status' => $row['eps'],
+					'collection' => 'collect'
+				)
+			));
+			$this->response->throwJson(array('status' => true, 'collection' => 'collect', 'ep_status' => ($row['ep_status']+1)));
+		}
 	}
 
 	/**

@@ -20,3 +20,6 @@ Instructions
 
 Changelog
 ---------
+
+###1.0.0
+建立本地管理
