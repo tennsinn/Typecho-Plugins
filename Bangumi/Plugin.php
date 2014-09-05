@@ -4,7 +4,7 @@
  * 
  * @package Bangumi
  * @author 息E-敛
- * @version 0.9.1
+ * @version 1.0.0
  * @link http://tennsinn.com
  */
 class Bangumi_Plugin implements Typecho_Plugin_Interface

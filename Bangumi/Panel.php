@@ -86,9 +86,9 @@ $collection_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_ho
 														<?php endif; ?>
 													</td>
 													<td class="subject-review">
-														<p class="subject-interest_rate">评价：<?php echo str_repeat('<span class="interest_rate-star interest_rate-star-rating"></span>', $bangumi['interest_rate']); echo str_repeat('<span class="interest_rate-star interest_rate-star-blank"></span>', 10-$bangumi['interest_rate']); ?></p>
-														<p class="subject-tags">标签：<?php echo $bangumi['tags'] ? $bangumi['tags'] : '<i>无</i>'; ?></p>
-														<p class="subject-comment">吐槽：<?php echo $bangumi['comment'] ? $bangumi['comment'] : '<i>无</i>'; ?></p>
+														<p class="subject-interest_rate"><i>评价：</i><?php echo str_repeat('<span class="interest_rate-star interest_rate-star-rating"></span>', $bangumi['interest_rate']); echo str_repeat('<span class="interest_rate-star interest_rate-star-blank"></span>', 10-$bangumi['interest_rate']); ?></p>
+														<p class="subject-tags"><i>标签：</i><?php echo $bangumi['tags'] ? $bangumi['tags'] : '无'; ?></p>
+														<p class="subject-comment"><i>吐槽：</i><?php echo $bangumi['comment'] ? $bangumi['comment'] : '无'; ?></p>
 														<p class="hidden-by-mouse"><a href="#<?php echo $bangumi['subject_id']; ?>" rel="<?php $options->index('/action/bangumi?do=editSubject'); ?>" class="subject-edit"><?php _e('编辑'); ?></a></p>
 													</td>
 												</tr>
@@ -282,14 +282,9 @@ $(document).ready(function () {
 					else
 						$('.subject-ep-plus', oldTr).html('ep.'+(parseInt(subject.ep_status)+1)+'已看过');
 					$('.bangumi-progress', oldTr).html('<div class="bangumi-progress-inner" style="color:white; width:'+(subject.eps != '0' ? subject.ep_status/subject.eps*100 : 100)+'%"><small>'+subject.ep_status+' / '+(subject.eps != '0' ? subject.eps : '??')+'</small></div>');
-					var html='';
-					for(var i=0; i<subject.interest_rate; i++)
-						html += '<span class="interest_rate-star interest_rate-star-rating"></span>';
-					for(; i<10; i++)
-						html += '<span class="interest_rate-star interest_rate-star-blank"></span>';
-					$('.subject-interest_rate', oldTr).html('评价：'+ '<span class="interest_rate-star interest_rate-star-rating"></span>'.repeat(subject.interest_rate)+'<span class="interest_rate-star interest_rate-star-blank"></span>'.repeat(10-subject.interest_rate));
-					$('.subject-tags', oldTr).html('标签：'+(subject.tags ? subject.tags : '<i>无</i>'));
-					$('.subject-comment', oldTr).html('吐槽：'+(subject.comment ? subject.comment : '<i>无</i>'));
+					$('.subject-interest_rate', oldTr).html('<i>评价：</i>'+ '<span class="interest_rate-star interest_rate-star-rating"></span>'.repeat(subject.interest_rate)+'<span class="interest_rate-star interest_rate-star-blank"></span>'.repeat(10-subject.interest_rate));
+					$('.subject-tags', oldTr).html('<i>标签：</i>'+(subject.tags ? subject.tags : '无'));
+					$('.subject-comment', oldTr).html('<i>吐槽：</i>'+(subject.comment ? subject.comment : '无'));
 					$('.subject-meta', oldTr).effect('highlight');
 					$('.subject-review', oldTr).effect('highlight');
 				}

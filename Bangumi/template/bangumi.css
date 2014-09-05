@@ -74,11 +74,13 @@
 
 .bangumi-content
 {
+	background-color: white;
+	position: relative;
 	padding: 5px;
 	border: 1px solid #EEE;
 	border-radius: 5px;
 	margin-bottom: 5px;
-	height: 160px;
+	min-height: 160px;
 }
 
 .bangumi-img
@@ -87,9 +89,22 @@
 	margin: 5px;
 }
 
+.bangumi-img img
+{
+	max-height: 140px;
+	max-width: 100px;
+}
+
 .bangumi-info
 {
 	margin: 10px 10px 10px 115px;
+}
+
+.bangumi-meta
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: small;
 }
 
 .bangumi-progress
@@ -104,7 +119,7 @@
 {
 	height: 15px;
 	line-height: 15px;
-	background: url('./progress.png') repeat-x scroll #FFF;
+	background: url('progress.png') repeat-x scroll #FFF;
 	position: relative;
 }
 
@@ -113,4 +128,66 @@
 	position: absolute;
 	width: 100px;
 	left: 2px;
+}
+
+.bangumi-review
+{
+	display: none;
+	position: absolute;
+	z-index: 1;
+	left: 10px;
+	bottom: 0;
+	background-color: white;
+	width: 90%;
+	margin-bottom: 5px;
+	padding: 5px 5px 0 5px;
+	border-top: solid 3px #EEE;
+	max-height: 64px;
+	white-space: nowrap; 
+	overflow: hidden;
+}
+
+.bangumi-review:hover
+{
+	max-height: none;
+	white-space: normal;
+}
+
+.row_double li:hover .bangumi-review
+{
+	display: block;
+}
+
+/* bangumi nav */
+.bangumi-navigator
+{
+	list-style: none;
+	text-align: right;
+	margin-bottom: 5px;
+}
+
+.bangumi-navigator li
+{
+	display: inline-block;
+	margin: 0 4px;
+}
+
+.bangumi-navigator a
+{
+	display: inline-block;
+	padding: 0 10px;
+	height: 30px;
+	line-height: 30px;
+}
+
+.bangumi-navigator a:hover
+{
+	background: #EEE;
+	text-decoration: none;
+}
+
+.bangumi-navigator .current a
+{
+	color: #444;
+	background: #EEE;
 }
