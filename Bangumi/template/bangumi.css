@@ -1,4 +1,4 @@
-.subject-type-ico
+.subject_type-ico
 {
 	display: block;
 	height: 15px;
@@ -8,25 +8,44 @@
 	float: left;
 }
 
-.subject-type-1
+.subject_type-1
 {
 	background-position: 0px 0px;
 }
 
-.subject-type-2,
-.subject-type-6
+.subject_type-2,
+.subject_type-6
 {
 	background-position: 0px -19px;
 }
 
-.subject-type-3
+.subject_type-3
 {
 	background-position: 0px -34px;
 }
 
-.subject-type-4
+.subject_type-4
 {
 	background-position: 0px -48px;
+}
+
+.interest_rate-star
+{
+	background: url('star.gif') no-repeat scroll 0% 0% transparent;
+	display: inline-block;
+	height: 16px;
+	margin: 0px;
+	width: 16px;
+}
+
+.interest_rate-star-rating
+{
+	background-position: 0px bottom;
+}
+
+.interest_rate-star-blank
+{
+	background-position: 0px top;
 }
 
 .clear

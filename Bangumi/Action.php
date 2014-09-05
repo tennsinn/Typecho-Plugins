@@ -157,12 +157,18 @@ class Bangumi_Action extends Typecho_Widget implements Widget_Interface_Do
 					'comment' => $this->request->comment,
 					'eps' => $this->request->eps
 				);
+				$json = array('status' => true, 'message' => _t('修改成功'));
 				if($this->request->eps > 0 && $this->request->eps >= $this->request->ep_status)
 					$subject['ep_status'] = $this->request->ep_status;
 				if($this->request->eps > 0 && $this->request->eps == $this->request->ep_status)
+				{
 					$subject['collection'] = 'collect';
+					$json['collection'] = 'collect';
+				}
+				else
+					$json['collection'] = $this->request->collection;
 				$this->_db->query($this->_db->update('table.bangumi')->where('subject_id = ?', $this->request->subject_id)->rows($subject));
-				$this->response->throwJson(array('status' => true, 'message' => _t('修改成功')));
+				$this->response->throwJson($json);
 			}
 		}
 		else
