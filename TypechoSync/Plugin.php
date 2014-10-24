@@ -4,7 +4,7 @@
  * 
  * @package TypechoSync
  * @author 息E-敛
- * @version 0.4.1
+ * @version 0.4.2
  * @link http://tennsinn.com
  **/
  
@@ -147,7 +147,7 @@
 					<li><label>请进入设置填写相应的信息</label></li>
 				<?php else: ?>
 					<?php foreach($clients as $clientSlug => $clientText): ?>
-						<li><input id="sync-<?=$clientSlug?>" type="checkbox" value="<?=$clientSlug?>" name="syncs[]"<?php if($checked): ?> checked="true"<?php endif; ?>/><label for="sync-<?=$clientSlug?>"><?=$clientText?></label></li>
+						<li><input id="sync-<?=$clientSlug?>" type="checkbox" value="<?=$clientSlug?>" name="syncs[]"<?php if($checked): ?> checked="true"<?php endif; ?>><label for="sync-<?=$clientSlug?>"><?=$clientText?></label></li>
 					<?php endforeach; ?>
 				<?php endif; ?>
 			</ul>
@@ -155,7 +155,7 @@
 	<?php
 	}
 
-	public static $syncFlag = true;
+	public static $flagSyncPost = true;
 
 	/**
 	 * 同步发表文章
@@ -166,15 +166,15 @@
 	 */
 	public static function syncPost($contents, $class)
 	{
-		if(!is_a($class, 'Widget_Contents_Post_Edit') || !isset($class->request->syncs) || empty($class->request->syncs) || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
+		$syncs = $class->request->getArray('syncs');
+		if(!is_a($class, 'Widget_Contents_Post_Edit') || !$syncs || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
 			return $contents;
-		self::$syncFlag = self::$syncFlag ? false : true;
-		if(self::$syncFlag)
+		self::$flagSyncPost = self::$flagSyncPost ? false : true;
+		if(self::$flagSyncPost)
 			return $contents;
 		$settings = Helper::options()->plugin('TypechoSync');
 		if(isset($settings->sync) && in_array('post', $settings->sync))
 		{
-			$options = Helper::options();
 			// 处理文字
 			$text = $contents['text'];
 			$text = $contents['isMarkdown'] ? MarkdownExtraExtended::defaultTransform($text) : Typecho_Common::cutParagraph($text);
@@ -187,12 +187,11 @@
 			// 模板文本
 			$string = $settings->template ? $settings->template : '{site}：发表了一篇博文《{title}》：{text}';
 			$search = array('{site}', '{title}', '{text}');
-			$replace = array($options->title, $contents['title'], $text);
+			$replace = array(Helper::options()->title, $contents['title'], $text);
 			$string = str_replace($search, $replace, $string);
 			// 添加链接
 			$string .= $contents['permalink'];
 			// 逐个同步
-			$syncs = array_unique(array_map('trim', $class->request->syncs));
 			if(in_array('sina', $syncs) && !empty($settings->sinaToken))
 				self::syncSina($string, $pic);
 			if(in_array('tencent', $syncs) && !empty($settings->tencentToken) && !empty($settings->tencentOpenid))
@@ -210,11 +209,9 @@
 	public static function syncWords($newWord, $class)
 	{
 		$settings = Helper::options()->plugin('TypechoSync');
-		if(isset($settings->sync) && in_array('words', $settings->sync)
-			&& isset($class->request->syncs) && !empty($class->request->syncs))
+		$syncs = $class->request->getArray('syncs');
+		if(isset($settings->sync) && in_array('words', $settings->sync) && $syncs)
 		{
-			$options = Helper::options();
-			$syncs = array_unique(array_map('trim', $class->request->syncs));
 			if(in_array('sina', $syncs) && !empty($settings->sinaToken))
 				self::syncSina($newWord['content']);
 			if(in_array('tencent', $syncs) && !empty($settings->tencentToken) && !empty($settings->tencentOpenid))
@@ -247,7 +244,7 @@
 			$response = $clientSina->update($status);
 		}
 		// 记录错误信息
-		if($response)
+		if(!$response)
 			self::logError($apiUrl.': post failed');
 		elseif(isset($response['error_code']))
 			self::logError($apiUrl.': '.$response['error']);
@@ -313,9 +310,8 @@
 	 */
 	public static function logError($message)
 	{
-		$options = Helper::options();
 		$fileLog = @fopen(dirname(__FILE__).'/errorlog.txt', 'a');
-		fwrite($fileLog, date('Y-m-d H:i', time(0)+$options->timezone).': '.$message."\r\n");
+		fwrite($fileLog, date('Y-m-d H:i', time(0)+Helper::options()->timezone).': '.$message."\r\n");
 		fclose($fileLog);
 	}
 }

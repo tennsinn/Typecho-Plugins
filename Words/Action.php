@@ -53,17 +53,13 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 	 */
 	public function delWords()
 	{
-		$wids = $this->request->filter('int')->wid;
+		$wids = $this->request->filter('int')->getArray('wid');
 		$delCount = 0;
-		if($wids)
+		foreach($wids as $wid)
 		{
-			$wids = is_array($wids) ? $wids : array($wids);
-			foreach($wids as $wid)
-			{
-				$this->_db->query($this->_db->delete('table.words_contents')->where('wid = ?', $wid));
-				$this->_db->query($this->_db->delete('table.words_comments')->where('wid = ?', $wid));
-				$delCount++;
-			}
+			$this->_db->query($this->_db->delete('table.words_contents')->where('wid = ?', $wid));
+			$this->_db->query($this->_db->delete('table.words_comments')->where('wid = ?', $wid));
+			$delCount++;
 		}
 		$this->widget('Widget_Notice')->set($delCount > 0 ? _t('已删除'.$delCount.'条碎语') : _t('未选中任何碎语'), $delCount > 0 ? 'success' : 'notice');
 		$this->response->redirect(Typecho_Common::url('extending.php?panel=Words%2FPanel.php', $this->_options->adminUrl));
@@ -232,8 +228,7 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 	public function delComments()
 	{
 		$delCount = 0;
-		$cids = $this->request->filter('int')->cid;
-		$cids = is_array($cids) ? $cids : array($cids);
+		$cids = $this->request->filter('int')->getArray('cid');
 		foreach($cids as $cid)
 		{
 			$delCount += $this->_funcDelete($cid);
@@ -300,18 +295,12 @@ class Words_Action extends Typecho_Widget implements Widget_Interface_Do
 		if($type == 'page')
 		{
 			$page = isset($this->request->page) ? $this->request->get('page') : '1';
+			$query = $this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC)->page($page, $pageSize);
 			if(isset($this->request->wid))
-			{
-				$rows = $this->_db->fetchAll($this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC)->page($page, $pageSize)->where('wid = ?', $this->request->get('wid')));
-				$num = $this->_db->fetchObject($this->_db->select(array('COUNT(table.words_comments.cid)' => 'num'))->from('table.words_comments')->where('wid = ?', $this->request->get('wid')))->num;
-			}
-			else
-			{
-				$rows = $this->_db->fetchAll($this->_db->select()->from('table.words_comments')->order('cid', Typecho_Db::SORT_DESC)->page($page, $pageSize));
-				$num = $this->_db->fetchObject($this->_db->select(array('COUNT(table.words_comments.cid)' => 'num'))->from('table.words_comments'))->num;
-			}
+				$query->where('wid = ?', $this->request->get('wid'));
+			$rows = $this->_db->fetchAll($query);
+			$num = $this->_db->fetchObject($query->select(array('COUNT(table.words_comments.cid)' => 'num')))->num;
 			$query = $this->request->makeUriByRequest('page={page}');
-			
 			$nav = new Typecho_Widget_Helper_PageNavigator_Box($num, $page, $pageSize, $query);
 			return array('comments' => $rows, 'nav' => $nav);
 		}

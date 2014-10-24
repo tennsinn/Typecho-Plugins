@@ -75,10 +75,9 @@ class Bangumi_Action extends Typecho_Widget implements Widget_Interface_Do
 		if(isset($this->request->collection))
 		{
 			$collection = $this->request->get('collection');
-			$subject_ids = $this->request->filter('int')->subject_id;
+			$subject_ids = $this->request->filter('int')->getArray('subject_id');
 			if($subject_ids)
 			{
-				$subject_ids = is_array($subject_ids) ? $subject_ids : array($subject_ids);
 				if($collection == 'delete')
 				{
 					foreach($subject_ids as $subject_id)
