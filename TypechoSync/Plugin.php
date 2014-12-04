@@ -4,7 +4,7 @@
  * 
  * @package TypechoSync
  * @author 息E-敛
- * @version 0.4.2
+ * @version 0.4.3
  * @link http://tennsinn.com
  **/
  
@@ -155,8 +155,6 @@
 	<?php
 	}
 
-	public static $flagSyncPost = true;
-
 	/**
 	 * 同步发表文章
 	 * 
@@ -167,17 +165,14 @@
 	public static function syncPost($contents, $class)
 	{
 		$syncs = $class->request->getArray('syncs');
-		if(!is_a($class, 'Widget_Contents_Post_Edit') || !$syncs || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
-			return $contents;
-		self::$flagSyncPost = self::$flagSyncPost ? false : true;
-		if(self::$flagSyncPost)
+		if(!is_a($class, 'Widget_Contents_Post_Edit') || !$contents['permalink'] || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
 			return $contents;
 		$settings = Helper::options()->plugin('TypechoSync');
 		if(isset($settings->sync) && in_array('post', $settings->sync))
 		{
 			// 处理文字
 			$text = $contents['text'];
-			$text = $contents['isMarkdown'] ? MarkdownExtraExtended::defaultTransform($text) : Typecho_Common::cutParagraph($text);
+			$text = $contents['isMarkdown'] ? Markdown::convert($text) : Typecho_Common::cutParagraph($text);
 			$text = Typecho_Common::fixHtml($text);
 			// 获取最多9张图片
 			preg_match_all("/\<img.*?src\=\"(.*?)\"[^>]*>/i", $text, $pic);
@@ -212,10 +207,11 @@
 		$syncs = $class->request->getArray('syncs');
 		if(isset($settings->sync) && in_array('words', $settings->sync) && $syncs)
 		{
+			$string = Helper::options()->title.'：'.$newWord['content'];
 			if(in_array('sina', $syncs) && !empty($settings->sinaToken))
-				self::syncSina($newWord['content']);
+				self::syncSina($string);
 			if(in_array('tencent', $syncs) && !empty($settings->tencentToken) && !empty($settings->tencentOpenid))
-				self::syncTencent($newWord['content']);
+				self::syncTencent($string);
 		}
 	}
 
