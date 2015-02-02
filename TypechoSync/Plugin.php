@@ -4,7 +4,7 @@
  * 
  * @package TypechoSync
  * @author 息E-敛
- * @version 0.4.3
+ * @version 0.4.4
  * @link http://tennsinn.com
  **/
  
@@ -165,7 +165,7 @@
 	public static function syncPost($contents, $class)
 	{
 		$syncs = $class->request->getArray('syncs');
-		if(!is_a($class, 'Widget_Contents_Post_Edit') || !$contents['permalink'] || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'])
+		if(!is_a($class, 'Widget_Contents_Post_Edit') || !$contents['permalink'] || !$class->request->is('do=publish') || !$contents['status'] == 'publish' || $contents['password'] || $contents['modified']!=time(0))
 			return $contents;
 		$settings = Helper::options()->plugin('TypechoSync');
 		if(isset($settings->sync) && in_array('post', $settings->sync))
