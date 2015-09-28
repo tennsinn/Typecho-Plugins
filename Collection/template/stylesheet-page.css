@@ -1,0 +1,136 @@
+.collection-list
+{
+	list-style: none;
+}
+
+.subject-content
+{
+	background-color: white;
+	position: relative;
+	padding: 5px;
+	border-top: 1px solid #EEE;
+	border-left: 5px solid #EEE;
+	border-bottom: 5px solid #DDD;
+	border-right: 1px solid #EEE;
+	border-radius: 5px;
+	margin-bottom: 5px;
+}
+
+.subject-content:after
+{
+	content: '';
+	display: block;
+	clear: both;
+}
+
+.subject-cover
+{
+	float: left;
+	margin: 5px;
+	width: 100px;
+}
+
+.subject-cover img
+{
+	max-height: 140px;
+	max-width: 100px;
+}
+
+.subject-info
+{
+	margin: 5px 5px 5px 120px;
+}
+
+.subject-meta
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: small;
+}
+
+.subject-meta span
+{
+	padding-right: 10px;
+	padding-left: 10px;
+	border-right: 1px  solid grey;
+}
+
+.subject-meta span:last-child
+{
+	padding-right: 0px;
+	border-right: none;
+}
+
+.subject-meta span:first-child
+{
+	padding-left: 0px;
+}
+
+.subject-box-progress
+{
+	height: 25px;
+}
+
+.subject-box-progress div
+{
+	float: left;
+}
+
+.subject-box-progress div:nth-child(3)
+{
+	margin-left: 10px;
+}
+
+.subject-box-progress:after
+{
+	content: '';
+	display: block;
+	clear: both;
+}
+
+.subject-review span
+{
+	font-size: 90%;
+}
+
+/*
+ * Collection nav
+ */
+
+.collection-navigator
+{
+	list-style: none;
+	text-align: right;
+	margin-bottom: 5px;
+}
+
+.collection-navigator li
+{
+	display: inline-block;
+	margin: 0 4px;
+}
+
+.collection-navigator a
+{
+	display: inline-block;
+	padding: 0 10px;
+	height: 30px;
+	line-height: 30px;
+}
+
+.collection-navigator a:hover
+{
+	background: #EEE;
+	text-decoration: none;
+}
+
+.collection-navigator .current a
+{
+	color: #444;
+	background: #EEE;
+}
+
+.clear
+{
+	clear: both;
+}

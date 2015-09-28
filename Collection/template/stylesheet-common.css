@@ -1,0 +1,84 @@
+/*
+ * type
+ */
+
+.subject_type-ico
+{
+	display: block;
+	height: 15px;
+	width: 17px;
+	margin: 3px 0 0;
+	background: url('subject_type.png') no-repeat scroll 0% 0% transparent;
+	float: left;
+}
+
+.subject_type-1
+{
+	background-position: 0px 0px;
+}
+
+.subject_type-2,
+.subject_type-6
+{
+	background-position: 0px -19px;
+}
+
+.subject_type-3
+{
+	background-position: 0px -34px;
+}
+
+.subject_type-4
+{
+	background-position: 0px -48px;
+}
+
+/*
+ * rate
+ */
+
+.rate-star
+{
+	background: url('subject_star.gif') no-repeat scroll 0% 0% transparent;
+	display: inline-block;
+	height: 16px;
+	margin: 0px;
+	width: 16px;
+}
+
+.rate-star-rating
+{
+	background-position: 0px bottom;
+}
+
+.rate-star-blank
+{
+	background-position: 0px top;
+}
+
+/*
+ * progress
+ */
+
+.subject-progress
+{
+	width: 150px;
+	border: 1px solid #CCC;
+	border-radius: 2px;
+	padding: 1px;
+}
+
+.subject-progress-inner
+{
+	height: 15px;
+	line-height: 15px;
+	background: url('subject_progress.png') repeat-x scroll #FFF;
+	position: relative;
+}
+
+.subject-progress-inner small
+{
+	position: absolute;
+	width: 100px;
+	left: 2px;
+}

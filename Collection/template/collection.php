@@ -12,7 +12,7 @@
 
 <div id="part-main" role="main">
     <div class="post-content">
-		<?php Bangumi_Plugin::render(); ?>
+		<?php Collection_Plugin::render(); ?>
     </div>
 </div><!-- end #main-->
 
