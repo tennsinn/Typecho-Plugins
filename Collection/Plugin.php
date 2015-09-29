@@ -4,7 +4,7 @@
  * 
  * @package Collection
  * @author 息E-敛
- * @version 1.1.0
+ * @version 1.1.1
  * @link http://tennsinn.com
  */
 class Collection_Plugin implements Typecho_Plugin_Interface
@@ -17,12 +17,13 @@ class Collection_Plugin implements Typecho_Plugin_Interface
 		$charset = Helper::options()->charset == 'UTF-8' ? 'utf8' : 'gbk';
 		$query = 'CREATE TABLE IF NOT EXISTS '. $db->getPrefix() . 'collection' ." (
 			`id` int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
-			`type` int(2) unsigned NOT NULL,
+			`type` int(1) unsigned NOT NULL,
 			`name` varchar(50) NOT NULL,
 			`name_cn` varchar(50) default NULL,
 			`image` varchar(100) default NULL,
 			`ep_count` int(3) unsigned default '0',
 			`sp_count` int(2) unsigned default '0',
+			`notes` varchar(50) default NULL,
 			`bangumi_id` int(10) unsigned default NULL,
 			`status` char(7) NOT NULL,
 			`time_start` int(10) unsigned default NULL,
@@ -64,6 +65,15 @@ class Collection_Plugin implements Typecho_Plugin_Interface
 			_t('Bangumi的用户uid，可用于获取部分收藏信息')
 		);
 		$form->addInput($uid);
+
+		$imageUrl = new Typecho_Widget_Helper_Form_Element_Text(
+			'imageUrl',
+			NULL,
+			NULL,
+			_t('默认图片路径'),
+			_t('对于自行添加的记录默认Cover路径，为空时将直接输出记录图片地址')
+		);
+		$form->addInput($imageUrl);
 	}
 	
 	public static function personalConfig(Typecho_Widget_Helper_Form $form){}

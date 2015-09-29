@@ -1,6 +1,11 @@
 <?php
-	$status_trans = array('do' => array('在读', '在看', '在听', '在玩', '', '在看'), 'collect' => array('读过', '看过', '听过', '玩过', '', '看过'), 'wish' => array('想读', '想看', '想听', '想玩', '', '想看'), 'on_hold' => array('搁置', '搁置', '搁置', '搁置', '', '搁置'), 'dropped' => array('抛弃', '抛弃', '抛弃', '抛弃', '', '抛弃'));
-	$type_trans = array('阅读', '观看', '收听', '游戏', '', '欣赏');
+	$status_trans = array(
+		'do' => array('在读', '在看', '在听', '在玩', '在看', '在看', '在看', '在听'), 
+		'collect' => array('读过', '看过', '听过', '玩过', '看过', '看过', '看过', '听过'), 
+		'wish' => array('想读', '想看', '想听', '想玩', '想看', '想看', '想看', '想听'), 
+		'on_hold' => array('搁置', '搁置', '搁置', '搁置', '搁置', '搁置', '搁置', '搁置'), 
+		'dropped' => array('抛弃', '抛弃', '抛弃', '抛弃', '抛弃', '抛弃', '抛弃', '抛弃')
+	);
 	$timeoffset = Helper::options()->timezone;
 ?>
 <link rel="stylesheet" type="text/css" href="<?php Helper::options()->pluginUrl('Collection/template/stylesheet-common.css'); ?>">
@@ -21,7 +26,7 @@
 				elseif($subject['bangumi_id'])
 					echo 'http://lain.bgm.tv/pic/cover/m/'.$subject['image'];
 				else
-					echo $subject['image'];
+					echo Helper::options()->plugin('Collection')->imageUrl ? $options->plugin('Collection')->imageUrl.'m/'.$subject['image'] : $subject['image'];;
 				echo '"></div>';
 			?>
 			<div class="subject-info">
@@ -32,8 +37,8 @@
 				</div>
 				<div class="subject-meta">
 					<span>状态：<?php echo $status_trans[$subject['status']][$subject['type']-1]; ?></span>
-					<span>起止时间：<?php echo $subject['time_start'] ? date("Y-m-d", $subject['time_start']+$timeoffset) : '??'; ?> / <?php echo $subject['time_finish'] ? date("Y-m-d", $subject['time_finish']+$timeoffset) : '??'; ?></span>
-					<span>最后<?php echo $type_trans[$subject['type']-1]; ?>：<?php echo date("Y-m-d", $subject['time_touch']+$timeoffset); ?></span>
+					<span>记录起止：<?php echo $subject['time_start'] ? date("Y-m-d", $subject['time_start']+$timeoffset) : '??'; ?> / <?php echo $subject['time_finish'] ? date("Y-m-d", $subject['time_finish']+$timeoffset) : '??'; ?></span>
+					<span>最后修改：<?php echo date("Y-m-d", $subject['time_touch']+$timeoffset); ?></span>
 				</div>
 				<div class="subject-box-progress">
 				<?php if($subject['type'] == 1 || $subject['type'] == 2 || $subject['type'] == 6): ?>

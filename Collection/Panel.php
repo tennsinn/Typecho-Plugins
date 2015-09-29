@@ -6,8 +6,18 @@ include 'menu.php';
 $do = isset($request->do) ? $request->get('do') : 'manage';
 $type = isset($request->type) ? $request->get('type') : '0';
 $status = isset($request->status) ? $request->get('status') : 'all';
-$status_array = array('all', 'do', 'collect', 'wish', 'on_hold', 'dropped');
-$status_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold', 'dropped'), '1' => array('书籍', '在读', '读过', '想读', '搁置', '抛弃'), '2' => array('动画', '在看', '看过', '想看', '搁置', '抛弃'), '3' => array('音乐', '在听', '听过', '想听', '搁置', '抛弃'), '4' => array('游戏', '在玩', '玩过', '想玩', '搁置', '抛弃'), '6' => array('三次元', '在看', '看过', '想看', '搁置', '抛弃'));
+$status_array = array('全部', '书籍', '动画', '音乐', '游戏', '电影', '电视', '漫画', '广播');
+$status_trans = array(
+	'0' => array('all', 'do', 'collect', 'wish', 'on_hold', 'dropped'), 
+	'1' => array('书籍', '在读', '读过', '想读', '搁置', '抛弃'), 
+	'2' => array('动画', '在看', '看过', '想看', '搁置', '抛弃'), 
+	'3' => array('音乐', '在听', '听过', '想听', '搁置', '抛弃'), 
+	'4' => array('游戏', '在玩', '玩过', '想玩', '搁置', '抛弃'), 
+	'5' => array('电影', '在看', '看过', '想看', '搁置', '抛弃'), 
+	'6' => array('电视', '在看', '看过', '想看', '搁置', '抛弃'),  
+	'7' => array('漫画', '在看', '看过', '想看', '搁置', '抛弃'),  
+	'8' => array('广播', '在听', '听过', '想听', '搁置', '抛弃')
+);
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php $options->pluginUrl('Collection/template/stylesheet-common.css'); ?>">
@@ -19,7 +29,7 @@ $status_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold',
 			<div class="col-mb-12">
 				<?php if($do == 'manage'): ?>
 					<ul class="typecho-option-tabs right">
-						<?php foreach($status_array as $key => $value): ?>
+						<?php foreach($status_trans[0] as $key => $value): ?>
 							<li <?php if($status == $value): ?>class="current"<?php endif; ?>><a href="<?php $options->adminUrl('extending.php?panel=Collection%2FPanel.php&type='.$type.'&status='.$value); ?>"><?php _e($status_trans[$type][$key]); ?></a></li>
 						<?php endforeach; ?>
 					</ul>
@@ -38,7 +48,7 @@ $status_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold',
 										<button class="dropdown-toggle btn-s" type="button"><?php _e('<i class="sr-only">操作</i>选中项'); ?> <i class="i-caret-down"></i></button>
 										<ul class="dropdown-menu">
 											<?php for($i=1; $i<6; $i++): ?>
-												<li><a lang="<?php _e('你确认要添加这些记录到'.$status_trans[$type][$i].'吗?'); ?>" href="<?php $options->index('/action/collection?do=editStatus&type='.$type.'&status='.$status_trans['0'][$i]); ?>"><?php _e('添加到'.$status_trans[$type][$i]); ?></a></li>
+												<li><a lang="<?php _e('你确认要修改这些记录到'.$status_trans[$type][$i].'吗?'); ?>" href="<?php $options->index('/action/collection?do=editStatus&type='.$type.'&status='.$status_trans['0'][$i]); ?>"><?php _e('修改到'.$status_trans[$type][$i]); ?></a></li>
 											<?php endfor; ?>
 											<li><a lang="<?php _e('你确认要删除记录中的这些记录吗?'); ?>" href="<?php $options->index('/action/collection?do=editStatus&status=delete'); ?>"><?php _e('删除记录'); ?></a></li>
 										</ul>
@@ -80,7 +90,7 @@ $status_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold',
 														elseif($subject['bangumi_id'])
 															echo 'http://lain.bgm.tv/pic/cover/m/'.$subject['image'];
 														else
-															echo $subject['image'];
+															echo $options->plugin('Collection')->imageUrl ? $options->plugin('Collection')->imageUrl.'m/'.$subject['image'] : $subject['image'];
 														echo '" width="100px"></td>';
 													?>
 													<td class="subject-meta">
@@ -127,6 +137,13 @@ $status_trans = array('0' => array('全部', 'do', 'collect', 'wish', 'on_hold',
 								</table>
 							</div>
 						</form>
+						<div class="typecho-list-operate clearfix">
+							<?php if($response['result']): ?>
+								<ul class="typecho-pager">
+									<?php $response['nav']->render(_t('&laquo;'), _t('&raquo;')); ?>
+								</ul>
+							<?php endif; ?>
+						</div>
 				<?php else: ?>
 					<div class="col-mb-12 typecho-list" role="main">
 						<?php $response = Typecho_Widget::widget('Collection_Action')->search(); ?>
