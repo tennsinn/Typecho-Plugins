@@ -166,6 +166,7 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 					'image' => $this->request->image,
 					'ep_count' => $this->request->ep_count,
 					'sp_count' => $this->request->sp_count,
+					'time_touch' => Typecho_Date::gmtTime(),
 					'ep_status' => $this->request->ep_status,
 					'sp_status' => $this->request->sp_status,
 					'rate' => $this->request->rate,

@@ -32,7 +32,7 @@
 			<div class="subject-info">
 				<div class="subject-name">
 					<i class="subject_type-ico subject_type-<?php echo $subject['type']; ?>"></i>
-					<?php echo $subject['bangumi_id'] ? '<a href="http://bangumi.tv/subject/'.$subject['bangumi_id'].'">'.$subject['name'].'</a>' : $subject['name']; ?>
+					<?php echo $subject['bangumi_id'] ? '<a href="http://bangumi.tv/subject/'.$subject['bangumi_id'].'" rel="nofollow">'.$subject['name'].'</a>' : $subject['name']; ?>
 					<?php echo $subject['name_cn'] ? '<small>（'.$subject['name_cn'].'）</small>' : ''; ?>
 				</div>
 				<div class="subject-meta">
