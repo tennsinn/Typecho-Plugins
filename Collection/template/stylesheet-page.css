@@ -76,9 +76,9 @@
 	float: left;
 }
 
-.subject-box-progress div:nth-child(3)
+.subject-box-progress div:nth-child(even)
 {
-	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .subject-box-progress:after

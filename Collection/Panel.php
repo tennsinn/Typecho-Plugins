@@ -94,7 +94,7 @@ $status_trans = array(
 														echo '" width="100px"></td>';
 													?>
 													<td class="subject-meta">
-														<div><i class="subject_type-ico subject_type-<?php echo $subject['type']; ?>"></i><a href="<?php echo $subject['bangumi_id'] ? 'http://bangumi.tv/subject/'.$subject['bangumi_id'] : ''; ?>"><?php echo $subject['name']; ?></a></div>
+														<div><i class="subject_type-ico subject_type-<?php echo $subject['type']; ?>"></i><?php echo $subject['bangumi_id'] ? '<a href="http://bangumi.tv/subject/'.$subject['bangumi_id'].'">'.$subject['name'].'</a>' : $subject['name']; ?></div>
 														<?php if($subject['name_cn']) echo '<div><small>'.$subject['name_cn'].'</small></div>'; ?>
 														<?php
 															if($subject['type'] == 1 || $subject['type'] == 2 || $subject['type'] == 6)
@@ -287,12 +287,12 @@ $(document).ready(function () {
 		if(!subject.image)
 			string += "<?php $options->pluginUrl('Collection/template/default_cover.jpg'); ?>";
 		else
-			if(subject.bangumi_id)
+			if(subject.bangumi_id > 0)
 				string += 'http://lain.bgm.tv/pic/cover/m/'+subject.image;
 			else
-				string += subject.image;
+				string += <?php echo $options->plugin('Collection')->imageUrl ? $options->plugin('Collection')->imageUrl.'m/' : ''; ?>subject.image;
 		string += '"></td><td><div><i class="subject_type-ico subject_type-'+subject.type+'"></i>'
-				+ (subject.bangumi_id ? '<a href="http://bangumi.tv/subject/'+subject.bangumi_id+'">'+subject.name+'</a>' : subject.name)
+				+ (subject.bangumi_id > 0 ? '<a href="http://bangumi.tv/subject/'+subject.bangumi_id+'">'+subject.name+'</a>' : subject.name)
 				+ '</div>'
 				+ (subject.name_cn ? '<div><small>'+subject.name_cn+'</small></div>' : '')
 				+ ((subject.type==1 || subject.type==2 || subject.type==6) ? (subject.status == 'collect' ? '<label for="subject-'+id+'-ep_progress"><?php _e('本篇进度'); ?></label><div id="subject-'+id+'-ep_progress" class="subject-progress"><div class="subject-progress-inner" style="color:white; width:100%"><small>'+subject.ep_status+' / '+(subject.ep_count != '0' ? subject.ep_count : '??')+'</small></div></div><label for="subject-'+id+'-sp_progress"><?php _e('特典进度'); ?></label><div id="subject-'+id+'-sp_progress" class="subject-progress"><div class="subject-progress-inner" style="color:white; width:100%"><small>'+subject.sp_status+' / '+(subject.sp_count != '0' ? subject.sp_count : '??')+'</small></div></div>' : '<form method="post" action="'+t.attr('rel')+'" class="subject-edit-info">'

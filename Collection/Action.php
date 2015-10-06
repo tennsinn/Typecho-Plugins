@@ -34,8 +34,8 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 			{
 				foreach($response as $bangumi)
 				{
-					$row = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('bangumi_id = ?', $bangumi['subject']['id']));
-					if($row)
+					$row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('bangumi_id = ?', $bangumi['subject']['id']));
+					if($row_temp)
 					{
 						
 						$row = array('status' => 'do', 'time_touch' => $bangumi['lasttouch'], 'ep_status' => $bangumi['ep_status']);
@@ -94,8 +94,10 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 					foreach($ids as $id)
 					{
 						$row = array('status' => $status, 'time_touch' => Typecho_Date::gmtTime());
-						if($status == 'collect')
-								$row['time_finish'] = Typecho_Date::gmtTime();
+						if($status == 'do' && $row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('id = ?', $id)) && !$row_temp['time_start'])
+							$row['time_start'] = Typecho_Date::gmtTime();
+						elseif($status == 'collect')
+							$row['time_finish'] = Typecho_Date::gmtTime();
 						$this->_db->query($this->_db->update('table.collection')->rows($row)->where('id = ?', $id));
 					}
 				}
@@ -121,7 +123,7 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 						);
 						if($status == 'do')
 							$row['time_start'] = Typecho_Date::gmtTime();
-						if($status == 'collect')
+						elseif($status == 'collect')
 							$row['time_finish'] = Typecho_Date::gmtTime();
 						$this->_db->query($this->_db->insert('table.collection')->rows($row));
 					}
@@ -245,7 +247,7 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 	 * @param  integer $pageSize 分页大小
 	 * @return array
 	 */
-	public function getCollection($pageSize=10)
+	public function getCollection($pageSize=20)
 	{
 		$status = isset($this->request->status) ? $this->request->get('status') : 'all';
 		$type = isset($this->request->type) ? $this->request->get('type') : '0';

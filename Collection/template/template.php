@@ -36,11 +36,12 @@
 					<?php echo $subject['name_cn'] ? '<small>（'.$subject['name_cn'].'）</small>' : ''; ?>
 				</div>
 				<div class="subject-meta">
-					<span>状态：<?php echo $status_trans[$subject['status']][$subject['type']-1]; ?></span>
 					<span>记录起止：<?php echo $subject['time_start'] ? date("Y-m-d", $subject['time_start']+$timeoffset) : '??'; ?> / <?php echo $subject['time_finish'] ? date("Y-m-d", $subject['time_finish']+$timeoffset) : '??'; ?></span>
 					<span>最后修改：<?php echo date("Y-m-d", $subject['time_touch']+$timeoffset); ?></span>
 				</div>
 				<div class="subject-box-progress">
+					<div>状态：</div>
+					<div><?php echo $status_trans[$subject['status']][$subject['type']-1]; ?></div>
 				<?php if($subject['type'] == 1 || $subject['type'] == 2 || $subject['type'] == 6): ?>
 						<div><?php _e('本篇：'); ?></div>
 						<div class="subject-progress"><div class="subject-progress-inner" style="color:white; width:<?php echo ($subject['ep_count'] ? $subject['ep_status']/$subject['ep_count']*100 : 50); ?>%"><small><?php echo $subject['ep_status'].' / '.($subject['ep_count'] ? $subject['ep_count'] : '??'); ?></small></div></div>
