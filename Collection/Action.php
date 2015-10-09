@@ -94,10 +94,21 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 					foreach($ids as $id)
 					{
 						$row = array('status' => $status, 'time_touch' => Typecho_Date::gmtTime());
-						if($status == 'do' && $row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('id = ?', $id)) && !$row_temp['time_start'])
-							$row['time_start'] = Typecho_Date::gmtTime();
-						elseif($status == 'collect')
-							$row['time_finish'] = Typecho_Date::gmtTime();
+						switch($status)
+						{
+							case 'do':
+								$row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('id = ?', $id));
+								if(!$row_temp['time_start'])
+									$row['time_start'] = Typecho_Date::gmtTime();
+								if($row_temp['time_finish'])
+									$row_temp['time_finish'] = NULL;
+								break;
+							case 'collect':
+								$row['ep_status'] = $response['eps'];
+							case 'dropped':
+								$row['time_finish'] = Typecho_Date::gmtTime();
+								break;
+						}
 						$this->_db->query($this->_db->update('table.collection')->rows($row)->where('id = ?', $id));
 					}
 				}
@@ -121,10 +132,17 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 							'ep_count' => $response['eps'],
 							'bangumi_id' => $response['id']
 						);
-						if($status == 'do')
-							$row['time_start'] = Typecho_Date::gmtTime();
-						elseif($status == 'collect')
-							$row['time_finish'] = Typecho_Date::gmtTime();
+						switch($status)
+						{
+							case 'do':
+								$row['time_start'] = Typecho_Date::gmtTime();
+								break;
+							case 'collect':
+								$row['ep_status'] = $response['eps'];
+							case 'dropped':
+								$row['time_finish'] = Typecho_Date::gmtTime();
+								break;
+						}
 						$this->_db->query($this->_db->insert('table.collection')->rows($row));
 					}
 					else
@@ -164,7 +182,7 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 			{
 				$row = array(
 					'name' => $this->request->name,
-					'name_cn' => $this->request->neme_cn,
+					'name_cn' => $this->request->name_cn,
 					'image' => $this->request->image,
 					'ep_count' => $this->request->ep_count,
 					'sp_count' => $this->request->sp_count,

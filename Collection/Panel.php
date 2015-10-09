@@ -112,7 +112,7 @@ $status_trans = array(
 																echo '<div id="subject-'.$subject['id'].'-sp"'.(($subject['sp_count'] || $subject['sp_status']) ? '' : ' class="hidden"').'>';
 																echo '<label for="subject-'.$subject['id'].'-sp_progress">'._t('特典进度').'</label>';
 																echo '<div id="subject-'.$subject['id'].'-sp_progress" class="subject-progress"><div class="subject-progress-inner" style="color:white; width:'.($subject['sp_count'] ? $subject['sp_status']/$subject['sp_count']*100 : 50).'%"><small>'.$subject['sp_status'].' / '.($subject['sp_count'] ? $subject['sp_count'] : '??').'</small></div></div>';
-																if($subject['status'] != 'collect')
+																if($subject['sp_count'] == 0 || $subject['sp_count'] > $subject['sp_status'])
 																{
 																	echo '<div class="hidden-by-mouse"><small><a href="#'.$subject['id'].'" rel="';
 																	$options->index('/action/collection?do=plusEp&plus=sp');
