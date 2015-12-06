@@ -1,34 +1,34 @@
 /*
- * type
+ * class
  */
 
-.subject_type-ico
+.subject_class-ico
 {
 	display: block;
 	height: 15px;
 	width: 17px;
 	margin: 3px 0 0;
-	background: url('subject_type.png') no-repeat scroll 0% 0% transparent;
+	background: url('subject_class.png') no-repeat scroll 0% 0% transparent;
 	float: left;
 }
 
-.subject_type-1
+.subject_class-1
 {
 	background-position: 0px 0px;
 }
 
-.subject_type-2,
-.subject_type-6
+.subject_class-2,
+.subject_class-6
 {
 	background-position: 0px -19px;
 }
 
-.subject_type-3
+.subject_class-3
 {
 	background-position: 0px -34px;
 }
 
-.subject_type-4
+.subject_class-4
 {
 	background-position: 0px -48px;
 }
