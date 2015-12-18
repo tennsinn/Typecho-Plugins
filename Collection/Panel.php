@@ -15,20 +15,21 @@ $status_trans = array(
 	'dropped' => array('抛弃', '抛弃', '抛弃', '抛弃', '抛弃', '抛弃', '抛弃')
 );
 $progress_trans = array(
-	'Collection' => array('收藏', '', ''),
+	'Collection' => array('收藏', '本篇', '特典'),
 	'Series' => array('系列', '卷', '番外'),
 	'Tankōbon' => array('单行本', '章', '节'),
 	'TV' => array('TV', '本篇', '特典'),
 	'OVA' => array('OVA', '本篇', '特典'),
-	'EP' => array('EP', '', ''),
-	'Album' => array('Album', '', ''),
-	'Android' => array('Andriod', '', ''),
+	'EP' => array('EP', '本篇', '特典'),
+	'Album' => array('Album', '本篇', '特典'),
+	'Android' => array('Andriod', '本篇', '特典'),
 	'PSV' => array('PSV', '奖杯', '收集'),
-	'3DS' => array('3DS', '', ''),
+	'3DS' => array('3DS', '本篇', '特典'),
 	'PC' => array('PC', '路线', '收集'),
 	'RadioDrama' => array('广播剧', '本篇', '番外'),
-	'Teleplay' => array('电视剧', '', ''),
-	'TalkShow' => array('脱口秀', '', '')
+	'Teleplay' => array('电视剧', '本篇', '特典'),
+	'TalkShow' => array('脱口秀', '本篇', '特典'),
+	'Movie' => array('电影', '本篇', '特典')
 );
 ?>
 
@@ -114,7 +115,7 @@ $progress_trans = array(
 																echo '<div id="subject-'.$subject['id'].'-ep">';
 																echo '<label for="subject-'.$subject['id'].'-ep_progress">'._t('本篇进度').'</label>';
 																echo '<div id="subject-'.$subject['id'].'-ep_progress" class="subject-progress"><div class="subject-progress-inner" style="color:white; width:'.($subject['ep_count'] ? $subject['ep_status']/$subject['ep_count']*100 : 50).'%"><small>'.$subject['ep_status'].' / '.($subject['ep_count'] ? $subject['ep_count'] : '??').'</small></div></div>';
-																if($subject['ep_count'] && $subject['ep_count']>$subject['ep_status'])
+																if(!$subject['ep_count'] || $subject['ep_count']>$subject['ep_status'])
 																{
 																	echo '<div class="hidden-by-mouse"><small><a href="#'.$subject['id'].'" rel="';
 																	$options->index('/action/collection?do=plusEp&plus=ep');
@@ -127,11 +128,11 @@ $progress_trans = array(
 																echo '<div id="subject-'.$subject['id'].'-sp"'.(($subject['sp_count'] || $subject['sp_status']) ? '' : ' class="hidden"').'>';
 																echo '<label for="subject-'.$subject['id'].'-sp_progress">'._t('特典进度').'</label>';
 																echo '<div id="subject-'.$subject['id'].'-sp_progress" class="subject-progress"><div class="subject-progress-inner" style="color:white; width:'.($subject['sp_count'] ? $subject['sp_status']/$subject['sp_count']*100 : 50).'%"><small>'.$subject['sp_status'].' / '.($subject['sp_count'] ? $subject['sp_count'] : '??').'</small></div></div>';
-																if($subject['sp_count'] && $subject['sp_count']>$subject['sp_status'])
+																if(!$subject['sp_count'] || $subject['sp_count']>$subject['sp_status'])
 																{
 																	echo '<div class="hidden-by-mouse"><small><a href="#'.$subject['id'].'" rel="';
 																	$options->index('/action/collection?do=plusEp&plus=sp');
-																	echo '" class="subject-plus" id="subject-'.$subject['id'].'-sp_plus">sp.'.($subject['sp_status']+1).'已'.$status_trans[$subject['class']][2].'</a></small></div>';
+																	echo '" class="subject-plus" id="subject-'.$subject['id'].'-sp_plus">sp.'.($subject['sp_status']+1).'已'.$status_trans['collect'][$subject['class']].'</a></small></div>';
 																}
 																echo '</div>';
 															}
@@ -325,7 +326,7 @@ $(document).ready(function () {
 							+ '<option value=3>音乐</option>'
 							+ '<option value=4>游戏</option>'
 							+ '<option value=5>广播</option>'
-							+ '<option value=6>电视</option>'
+							+ '<option value=6>影视</option>'
 						+ '</select></p>'
 						+ '<p><label for="' + id + '-type"><?php _e('类型'); ?></label><select id="' + id + '-type" name="type" class="w-100">'
 						<?php

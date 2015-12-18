@@ -38,27 +38,39 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 					if($row_temp)
 					{
 						
-						$row = array('status' => 'do', 'time_touch' => $bangumi['lasttouch'], 'ep_status' => $bangumi['ep_status']);
-						if($bangumi['subject']['eps'])
+						$row = array(
+							'status' => 'do', 
+							'time_touch' => $bangumi['lasttouch'], 
+							'ep_status' => $bangumi['ep_status']
+						);
+						if($bangumi['subject']['eps'] && !$row_temp['ep_count'])
 							$row['ep_count'] = $bangumi['subject']['eps'];
 						$this->_db->query($this->_db->update('table.collection')->rows($row)->where('bangumi_id = ?', $bangumi['subject']['id']));
 					}
 					else
 					{
-						$this->_db->query($this->_db->insert('table.collection')->rows(
-							array(
-								'class' => $bangumi['subject']['type'],
-								'name' => $bangumi['subject']['name'],
-								'name_cn' => $bangumi['subject']['name_cn'],
-								'image' => substr($bangumi['subject']['images']['common'], 31),
-								'ep_count' => $bangumi['subject']['eps'],
-								'bangumi_id' => $bangumi['subject']['id'],
-								'status' => 'do',
-								'time_start' => Typecho_Date::gmtTime(),
-								'time_touch' => $bangumi['lasttouch'],
-								'ep_status' => $bangumi['ep_status']
-							)
-						));
+						$row = array(
+							'class' => $bangumi['subject']['type'],
+							'name' => $bangumi['subject']['name'],
+							'name_cn' => $bangumi['subject']['name_cn'],
+							'image' => substr($bangumi['subject']['images']['common'], 31),
+							'bangumi_id' => $bangumi['subject']['id'],
+							'status' => 'do',
+							'time_start' => Typecho_Date::gmtTime(),
+							'time_touch' => $bangumi['lasttouch']
+						);
+						if($bangumi['ep_status'])
+						{
+							$row['ep_status'] = $bangumi['ep_status'];
+							$row['ep_count'] = $bangumi['subject']['eps'];
+						}
+						else
+							if($bangumi['subject']['eps'])
+							{
+								$row['ep_count'] = $bangumi['subject']['eps'];
+								$row['ep_status'] = 0;
+							}
+						$this->_db->query($this->_db->insert('table.collection')->rows($row));
 					}
 				}
 				$this->widget('Widget_Notice')->set(_t('成功获取Bangumi收视信息'), 'success');
@@ -94,17 +106,18 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 					foreach($ids as $id)
 					{
 						$row = array('status' => $status, 'time_touch' => Typecho_Date::gmtTime());
+						$row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('id = ?', $id));
 						switch($status)
 						{
 							case 'do':
-								$row_temp = $this->_db->fetchRow($this->_db->select()->from('table.collection')->where('id = ?', $id));
 								if(!$row_temp['time_start'])
 									$row['time_start'] = Typecho_Date::gmtTime();
 								if($row_temp['time_finish'])
 									$row['time_finish'] = NULL;
 								break;
 							case 'collect':
-								$row['ep_status'] = $response['eps'];
+								if($row_temp['ep_count'])
+									$row['ep_status'] = $row_temp['ep_count'];
 							case 'dropped':
 								$row['time_finish'] = Typecho_Date::gmtTime();
 								break;
@@ -127,9 +140,15 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 						);
 						switch($status)
 						{
+							case 'do':
+								if(!$row_temp['time_start'])
+									$row['time_start'] = Typecho_Date::gmtTime();
+								if($row_temp['time_finish'])
+									$row['time_finish'] = NULL;
+								break;
 							case 'collect':
-								if($row['ep_count'])
-									$row['ep_status'] = $row['ep_count'];
+								if($row_temp['ep_count'])
+									$row['ep_status'] = $row_temp['ep_count'];
 							case 'dropped':
 								$row['time_finish'] = Typecho_Date::gmtTime();
 								break;
@@ -149,16 +168,20 @@ class Collection_Action extends Typecho_Widget implements Widget_Interface_Do
 								'image' => substr($response['images']['common'], 31),
 								'status' => $status,
 								'time_touch' => Typecho_Date::gmtTime(),
-								'ep_count' => $response['eps'],
 								'bangumi_id' => $response['id']
 							);
+							if($response['eps'])
+							{
+								$row['ep_count'] = $response['eps'];
+								$row['ep_status'] = 0;
+							}
 							switch($status)
 							{
 								case 'do':
 									$row['time_start'] = Typecho_Date::gmtTime();
 									break;
 								case 'collect':
-									$row['ep_status'] = $response['eps'];
+									$row['ep_status'] = $row['ep_count'];
 								case 'dropped':
 									$row['time_finish'] = Typecho_Date::gmtTime();
 									break;

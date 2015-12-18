@@ -4,7 +4,7 @@
  * 
  * @package Collection
  * @author 息E-敛
- * @version 1.2.0
+ * @version 1.2.1
  * @link http://tennsinn.com
  */
 class Collection_Plugin implements Typecho_Plugin_Interface
@@ -22,8 +22,8 @@ class Collection_Plugin implements Typecho_Plugin_Interface
 			`name` varchar(50) NOT NULL,
 			`name_cn` varchar(50) default NULL,
 			`image` varchar(200) default NULL,
-			`ep_count` smallint(3) unsigned default NULL,
-			`sp_count` smallint(2) unsigned default NULL,
+			`ep_count` smallint(4) unsigned default NULL,
+			`sp_count` smallint(3) unsigned default NULL,
 			`notes` varchar(50) default NULL,
 			`bangumi_id` int unsigned default NULL,
 			`status` char(7) NOT NULL,
